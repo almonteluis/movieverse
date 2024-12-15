@@ -52,4 +52,24 @@ export const tmdbApi = {
         },
       }),
   },
+  genres: {
+    getMovieGenres: () =>
+      axios.get(`${BASE_URL}/genre/movie/list`, {
+        params: {
+          api_key: TMDB_API_KEY,
+          language: "en-US",
+        },
+      }),
+
+    getMoviesByGenre: (genreId: number) =>
+      axios.get(`${BASE_URL}/discover/movie`, {
+        params: {
+          api_key: TMDB_API_KEY,
+          with_genres: genreId,
+          sort_by: "popularity.desc",
+          include_adult: false,
+          page: 1,
+        },
+      }),
+  },
 };
