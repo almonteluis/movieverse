@@ -1,0 +1,17 @@
+.dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+[data-state="open"] > .dialog-backdrop {
+  animation: backdropIn 200ms ease-out;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

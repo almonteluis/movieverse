@@ -51,6 +51,13 @@ export const tmdbApi = {
           page: 1,
         },
       }),
+    getVideos: (movieId: number) =>
+      axios.get(`${BASE_URL}/movie/${movieId}/videos`, {
+        params: {
+          api_key: TMDB_API_KEY,
+          language: "en-US",
+        },
+      }),
   },
   genres: {
     getMovieGenres: () =>

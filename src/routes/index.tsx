@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout";
 import Home from "@/pages";
 import Movies from "@/pages/movies";
 import { MovieDetail } from "@/pages/movie/id";
+import TrendingPage from "@/pages/trending";
 import NotFound from "@/pages/not-found";
 
 export default function AppRoutes() {
@@ -12,6 +13,7 @@ export default function AppRoutes() {
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="movies" element={<Movies />} />
+        <Route path="trending" element={<TrendingPage />} />
         <Route path="movie/:id" element={<MovieDetail />} />
         <Route path="*" element={<NotFound />} />
       </Route>
