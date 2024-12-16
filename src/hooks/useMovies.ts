@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { tmdbApi } from '@/services/tmdb';
+import { movieService } from '@/services/movieService';
 
 export const useMovies = {
   useNowPlaying: () => {
@@ -12,13 +13,11 @@ export const useMovies = {
     });
   },
 
-  useTrending: () => {
+  useTrending: (timeWindow: string = 'week', page: number = 1) => {
     return useQuery({
-      queryKey: ['movies', 'trending'],
-      queryFn: async () => {
-        const { data } = await tmdbApi.movies.getTrending();
-        return data.results;
-      }
+      queryKey: ['trending', timeWindow, page],
+      queryFn: () => movieService.getTrending(timeWindow, page),
+    //   keepPreviousData: true, // Keep old data while fetching new data
     });
   },
 

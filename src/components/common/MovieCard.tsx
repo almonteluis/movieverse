@@ -19,7 +19,7 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
   const {
     showTrailer,
     videoData,
-    isLoadingVideo,
+    // isLoadingVideo,
     handlers: { onMouseEnter, onMouseLeave },
   } = useHoverTrailer(movie.id);
 

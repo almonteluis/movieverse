@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useMovies } from "@/hooks/useMovies";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { tmdbApi } from "@/services/tmdb";
+import { Movie } from "@/types/api.types";
 import {
   Search,
   PlayCircle,
@@ -15,7 +17,6 @@ import {
   MovieCardSkeleton,
   ComingSoonCardSkeleton,
 } from "@/components/ui/skeletons";
-import { tmdbApi } from "@/services/tmdb";
 
 export default function HomePage() {
   const {
@@ -180,7 +181,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {isLoadingTrending
               ? [...Array(5)].map((_, i) => <MovieCardSkeleton key={i} />)
-              : trending?.slice(0, 5).map((movie) => (
+              : trending?.results.slice(0, 5).map(movie => (
                   <Card key={movie.id} className="group overflow-hidden">
                     <div className="relative overflow-hidden">
                       <img

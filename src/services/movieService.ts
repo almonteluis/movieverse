@@ -47,6 +47,19 @@ export const movieService = {
       },
     ),
 
+  getTrending: async (timeWindow: string, page: number) => {
+    const { data } = await axios.get<{ results: Movie[]; total_pages: number }>(
+      `${BASE_URL}/trending/movie/${timeWindow}`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+          page,
+        },
+      },
+    );
+    return data;
+  },
+
   // getReviews: (movieId: number) =>
   //   axios.get<{ results: Review[] }>(`${BASE_URL}/movie/${movieId}/reviews`, {
   //     params: { api_key: TMDB_API_KEY },

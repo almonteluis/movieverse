@@ -12,7 +12,6 @@ import { MovieCardSkeleton } from "@/components/ui/skeletons";
 import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
-import { Movie } from "@/types/api.types";
 
 export default function TrendingPage() {
   const { data: trending, isLoading } = useMovies.useTrending();
@@ -86,7 +85,7 @@ export default function TrendingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {trending?.map((movie: Movie) => (
+            {trending?.results.map((movie) => (
               <MovieCard
                 key={movie.id}
                 movie={movie}
