@@ -1,6 +1,6 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/select";
 import { MovieCardSkeleton } from "@/components/ui/skeletons";
 import { useMovies } from "@/hooks/useMovies";
-import { Star, Calendar, Clock, Filter } from "lucide-react";
-import { tmdbApi } from "@/services/tmdb";
+import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
 
 // Replace the existing card mapping with:
@@ -21,8 +20,6 @@ export default function TrendingPage() {
   const {
     data: trending,
     isLoading,
-    fetchNextPage,
-    hasNextPage,
   } = useMovies.useTrending();
 
   const [timeWindow, setTimeWindow] = useState("week");

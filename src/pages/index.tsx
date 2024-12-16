@@ -1,8 +1,6 @@
-import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useMovies } from "@/hooks/useMovies";
-import { useGenres } from "@/hooks/useGenres";
 import { ErrorMessage } from "@/components/ui/error-message";
 import {
   Search,
@@ -16,7 +14,6 @@ import {
   HeroSkeleton,
   MovieCardSkeleton,
   ComingSoonCardSkeleton,
-  CategoryCardSkeleton,
 } from "@/components/ui/skeletons";
 import { tmdbApi } from "@/services/tmdb";
 
@@ -25,7 +22,6 @@ export default function HomePage() {
     data: nowPlaying,
     isLoading: isLoadingNowPlaying,
     isError: isNowPlayingError,
-    error: nowPlayingError,
     refetch: refetchNowPlaying,
   } = useMovies.useNowPlaying();
 
@@ -33,7 +29,6 @@ export default function HomePage() {
     data: trending,
     isLoading: isLoadingTrending,
     isError: isTrendingError,
-    error: trendingError,
     refetch: refetchTrending,
   } = useMovies.useTrending();
 
@@ -41,11 +36,8 @@ export default function HomePage() {
     data: upcoming,
     isLoading: isLoadingUpcoming,
     isError: isUpcomingError,
-    error: upcomingError,
     refetch: refetchUpcoming,
   } = useMovies.useUpcoming();
-
-  const { data: genres, isLoading: isLoadingGenres } = useGenres();
 
   // Get the first movie for the hero section
   const featuredMovie = nowPlaying?.[0] ?? {
