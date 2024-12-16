@@ -4,6 +4,10 @@ import path from "path";
 import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
+<<<<<<< Updated upstream
+=======
+  base: '/movieverse/',
+>>>>>>> Stashed changes
   plugins: [
     react(),
     compression({
