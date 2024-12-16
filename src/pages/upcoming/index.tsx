@@ -13,14 +13,18 @@ import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
 
-// Replace the existing card mapping with:
+interface FilterState {
+  timeWindow: string;
+  sortBy: string;
+  genre: string;
+}
 
 export default function UpcomingPage() {
   const { data: upcoming, isLoading } = useMovies.useUpcoming();
 
   const [timeWindow, setTimeWindow] = useState("week");
   const navigate = useNavigate(); // Add this hook
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<FilterState>({
     timeWindow: "week",
     sortBy: "popularity",
     genre: "all",

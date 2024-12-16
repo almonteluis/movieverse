@@ -1,20 +1,3 @@
-export interface Movie {
-  id: number;
-  title: string;
-  overview: string | null;
-  backdrop_path: string | null;
-  budget?: number;
-  poster_path: string | null;
-  vote_average: number | null;
-  release_date: string | null;
-  revenue?: number;
-  runtime: number | null;
-  genres?: Array<{
-    id: number;
-    name: string;
-  }>;
-}
-
 export interface Cast {
   id: number;
   name: string;

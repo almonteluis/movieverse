@@ -7,9 +7,13 @@ const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
 export const tmdbApi = {
   // Helper for image URLs
-  getImageUrl: (path: string | null, size: string = "original") => {
-    if (!path) return null;
-    return `${IMAGE_BASE_URL}/${size}${path}`;
+  getImageUrl: (path: string | null, size = "original") =>
+    path ? `https://image.tmdb.org/t/p/${size}${path}` : null,
+  formatRuntime: (minutes: number | null) => {
+    if (!minutes) return "";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
   },
 
   // Endpoints
