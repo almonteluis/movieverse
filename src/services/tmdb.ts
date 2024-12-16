@@ -1,3 +1,4 @@
+import { Movie } from "@/types/api.types";
 import axios from "axios";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -51,6 +52,8 @@ export const tmdbApi = {
           page: 1,
         },
       }),
+
+    // Get Video
     getVideos: (movieId: number) =>
       axios.get(`${BASE_URL}/movie/${movieId}/videos`, {
         params: {
