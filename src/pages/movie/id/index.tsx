@@ -17,7 +17,7 @@ import {
   useMovieCredits,
   useSimilarMovies,
 } from "@/hooks/useMovieDetails";
-import { Cast, Movie } from "@/types/movie";
+import { Cast, Movie, SimilarMovie } from "@/types/movie";
 
 // Part of MovieDetail component
 function HeroSection({ movie }: { movie: Movie }) {
@@ -134,32 +134,29 @@ function CastSection({ cast }: { cast?: Cast[] }) {
   );
 }
 
-function SimilarMoviesSection({movies}: { movies: Simi}) {
-  console.log(similar);
+function SimilarMoviesSection({ movies }: { movies: SimilarMovie[] }) {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Similar Movies</h2>
       <div className="space-y-4">
-        {similar.slice(0,6).map((movie) => (
-          <div key={movie} className="flex gap-4">
+        {movies.slice(0, 6).map((movie) => (
+          <div key={movie.id} className="flex gap-4">
             <div className="w-20 h-28 rounded-lg bg-muted overflow-hidden">
               <img
-                src="/placeholder-movie.jpg"
-                alt="Movie poster"
+                src={tmdbService.getImageUrl(movie.poster_path, "w500")}
+                alt={movie.title}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium line-clamp-1">Movie Title</h3>
+              <h3 className="font-medium line-clamp-1">{movie.title}</h3>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <span>4.5</span>
+                <span>{movie.vote_average?.toFixed(1)}</span>
               </div>
             </div>
           </div>
         ))}
-
-        
       </div>
     </div>
   );
@@ -241,7 +238,7 @@ export function MovieDetail() {
         {/* Sidebar */}
         <div className="space-y-8">
           {/* Similar Movies */}
-          <SimilarMoviesSection similar={similar} />
+          <SimilarMoviesSection movies={similar} />
 
           {/* Movie Details */}
           <div className="space-y-4">
