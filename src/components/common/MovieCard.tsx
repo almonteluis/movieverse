@@ -1,24 +1,21 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Calendar, Clock, Play } from "lucide-react";
 import { tmdbApi } from "@/services/tmdb";
 import { useHoverTrailer } from "@/hooks/useHoverTrailer";
 import { VideoPlayer } from "@/components/features/VideoPlayer";
+import { Movie } from "@/types/api.types";
 
 interface MovieCardProps {
-  movie: {
-    id: number;
-    title: string;
-    poster_path: string;
-    vote_average: number;
-    release_date: string;
-  };
-  onClick?: () => void;
+  movie: Movie;
+  onNavigate?: (movieId: number) => void;
 }
 
-export function MovieCard({ movie, onClick }: MovieCardProps) {
+export function MovieCard({ movie, onNavigate }: MovieCardProps) {
   const [showModal, setShowModal] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
   const {
     showTrailer,
     videoData,
@@ -28,22 +25,24 @@ export function MovieCard({ movie, onClick }: MovieCardProps) {
 
   // Handle card click without interfering with trailer button
   const handleCardClick = (e: React.MouseEvent) => {
-    // Only navigate if not clicking the trailer button
-    if (!e.defaultPrevented && onClick) {
-      onClick();
+    // If clicking on the button or video player, don't navigate
+    if (
+      (e.target as HTMLElement).closest("button") ||
+      (e.target as HTMLElement).closest(".video-player")
+    ) {
+      e.stopPropagation();
+      return;
     }
-  };
 
-  // Prevent navigation when clicking trailer button
-  const handleTrailerClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setShowModal(true);
+    // Otherwise, navigate to the movie detail page
+    onNavigate?.(movie.id);
   };
 
   return (
     <>
       <Card
-        className="group relative overflow-hidden"
+        ref={cardRef}
+        className="group relative overflow-hidden cursor-pointer"
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={handleCardClick}
@@ -63,7 +62,10 @@ export function MovieCard({ movie, onClick }: MovieCardProps) {
                 variant="outline"
                 size="lg"
                 className="gap-2 bg-white/10 hover:bg-white/20"
-                onClick={() => setShowModal(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowModal(true);
+                }}
               >
                 <Play className="h-5 w-5" />
                 Play Trailer
@@ -75,7 +77,7 @@ export function MovieCard({ movie, onClick }: MovieCardProps) {
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 p-4">
             <div className="flex items-center gap-2 text-white">
               <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span>{movie.vote_average.toFixed(1)}</span>
+              <span>{movie.vote_average?.toFixed(1)}</span>
             </div>
           </div>
         </div>
@@ -85,9 +87,15 @@ export function MovieCard({ movie, onClick }: MovieCardProps) {
           <h3 className="line-clamp-1 font-semibold">{movie.title}</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span>{new Date(movie.release_date).getFullYear()}</span>
-            <Clock className="h-4 w-4 ml-2" />
-            <span>2h 15m</span>
+            <span>
+              {movie.release_date && new Date(movie.release_date).getFullYear()}
+            </span>
+            {movie.runtime && (
+              <>
+                <Clock className="h-4 w-4 ml-2" />
+                <span>{tmdbApi.formatRuntime(movie.runtime)}</span>
+              </>
+            )}
           </div>
         </div>
       </Card>
