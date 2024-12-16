@@ -1,9 +1,9 @@
 import axios from "axios";
-import { type Movie, type Cast, type Video } from "@/types/movie";
+import { type Movie, type Cast, type Video, Crew } from "@/types/movie";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
-const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+// const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
 export const movieService = {
   getDetails: (movieId: number) =>
@@ -15,17 +15,20 @@ export const movieService = {
     }),
 
   getCredits: (movieId: number) =>
-    axios.get<{ cast: Cast[] }>(`${BASE_URL}/movie/${movieId}/credits`, {
-      params: {
-        api_key: TMDB_API_KEY,
-        language: "en-US",
+    axios.get<{ cast: Cast[]; crew: Crew[] }>(
+      `${BASE_URL}/movie/${movieId}/credits`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+          language: "en-US",
+        },
       },
-    }),
+    ),
 
-  // getVideos: (movieId: number) =>
-  //   axios.get<{ results: Video[] }>(`${BASE_URL}/movie/${movieId}/videos`, {
-  //     params: { api_key: API_KEY },
-  //   }),
+  getVideos: (movieId: number) =>
+    axios.get<{ results: Video[] }>(`${BASE_URL}/movie/${movieId}/videos`, {
+      params: { api_key: TMDB_API_KEY },
+    }),
 
   getSimilar: (movieId: number) =>
     axios.get(`${BASE_URL}/movie/${movieId}/similar`, {
@@ -36,16 +39,29 @@ export const movieService = {
       },
     }),
 
-  // getRecommendations: (movieId: number) =>
-  //   axios.get<{ results: Movie[] }>(
-  //     `${BASE_URL}/movie/${movieId}/recommendations`,
-  //     {
-  //       params: { api_key: API_KEY },
-  //     },
-  //   ),
+  getRecommendations: (movieId: number) =>
+    axios.get<{ results: Movie[] }>(
+      `${BASE_URL}/movie/${movieId}/recommendations`,
+      {
+        params: { api_key: TMDB_API_KEY },
+      },
+    ),
 
-  //   getReviews: (movieId: string) =>
-  //     axios.get<{ results: Review[] }>(`${BASE_URL}/movie/${movieId}/reviews`, {
-  //       params: { api_key: API_KEY },
-  //     }),
+  getTrending: async (timeWindow: string, page: number) => {
+    const { data } = await axios.get<{ results: Movie[]; total_pages: number }>(
+      `${BASE_URL}/trending/movie/${timeWindow}`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+          page,
+        },
+      },
+    );
+    return data;
+  },
+
+  // getReviews: (movieId: number) =>
+  //   axios.get<{ results: Review[] }>(`${BASE_URL}/movie/${movieId}/reviews`, {
+  //     params: { api_key: TMDB_API_KEY },
+  //   }),
 };

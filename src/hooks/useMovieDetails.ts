@@ -2,6 +2,8 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { movieService } from "@/services/movieService";
 import { tmdbService } from "@/services/tmdbService";
+import { Crew, Cast } from "@/types/movie";
+import { Movie } from "@/types/api.types";
 
 // Base movie details hook
 export function useMovieDetails(movieId: number) {
@@ -33,12 +35,12 @@ export function useMovieCredits(movieId: number) {
     queryFn: async () => {
       const { data } = await movieService.getCredits(movieId);
       return {
-        cast: data.cast.map((member) => ({
+        cast: data.cast.map((member: Cast) => ({
           ...member,
           profileUrl: tmdbService.getImageUrl(member.profile_path, "w185"),
         })),
         mainCast: data.cast.slice(0, 6),
-        director: data.crew.find((person) => person.job === "Director"),
+        director: data.crew.find((person: Crew) => person.job === "Director"),
       };
     },
     enabled: !!movieId,
@@ -98,7 +100,7 @@ export function useSimilarMovies(movieId: number) {
           return [];
         }
 
-        return data.results.map((movie) => ({
+        return data.results.map((movie: Movie) => ({
           ...movie,
           posterUrl: tmdbService.getImageUrl(movie.poster_path, "w342"),
         }));

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface VideoPlayerProps {
   isOpen: boolean;
@@ -15,7 +14,6 @@ export function VideoPlayer({
   isOpen,
   onClose,
   videoId,
-  title,
 }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [dimensions, setDimensions] = useState({

@@ -3,9 +3,11 @@ export interface Movie {
   title: string;
   overview: string | null;
   backdrop_path: string | null;
+  budget?: number;
   poster_path: string | null;
   vote_average: number | null;
   release_date: string | null;
+  revenue?: number;
   runtime: number | null;
   genres?: Array<{
     id: number;
@@ -17,6 +19,14 @@ export interface Cast {
   id: number;
   name: string;
   character: string;
+  profile_path: string;
+  profileUrl: string;
+}
+
+export interface Crew {
+  id: number;
+  name: string;
+  job: string;
   profile_path: string;
 }
 
