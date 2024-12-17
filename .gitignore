@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env
 chat/Claude-Preparing for React.js Assessment.md
+
+# Local Netlify folder
+.netlify
