@@ -5,7 +5,16 @@ import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Add this configuration to fix the React UMD global issue
+      jsxRuntime: "automatic",
+      jsxImportSource: "react",
+      babel: {
+        plugins: [
+          ["@babel/plugin-transform-react-jsx", { runtime: "automatic" }],
+        ],
+      },
+    }),
     compression({
       algorithm: "gzip",
       threshold: 1024,
