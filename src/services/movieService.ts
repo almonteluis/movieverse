@@ -1,9 +1,8 @@
 import axios from "axios";
-import { type Movie, type Cast, type Video, Crew } from "@/types/movie";
+import { type Movie, type Cast, type Video, Crew } from "@/types/api.types";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
-// const IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
 
 export const movieService = {
   getDetails: (movieId: number) =>

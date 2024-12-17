@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useMovies } from "@/hooks/useMovies";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { tmdbApi } from "@/services/tmdb";
-import { Movie } from "@/types/api.types";
+
 import {
   Search,
   PlayCircle,
@@ -181,14 +181,19 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {isLoadingTrending
               ? [...Array(5)].map((_, i) => <MovieCardSkeleton key={i} />)
-              : trending?.results.slice(0, 5).map(movie => (
+              : trending?.results.slice(0, 5).map((movie) => (
                   <Card key={movie.id} className="group overflow-hidden">
                     <div className="relative overflow-hidden">
                       <img
-                        src={tmdbApi.getImageUrl(movie.poster_path, "w500")}
-                        alt={movie.title}
+                        src={
+                          movie.poster_path
+                            ? tmdbApi.getImageUrl(movie.poster_path, "w500")
+                            : undefined
+                        }
+                        alt={movie.title || ""}
                         className="h-[300px] w-full object-cover transition duration-300 group-hover:scale-105"
                       />
+
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-4">
                         <div className="flex items-center gap-2 text-white">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

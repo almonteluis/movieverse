@@ -12,23 +12,24 @@ import { MovieCardSkeleton } from "@/components/ui/skeletons";
 import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
+import { Movie } from "@/types/api.types";
 
-interface FilterState {
-  timeWindow: string;
-  sortBy: string;
-  genre: string;
-}
+// interface FilterState {
+//   timeWindow: string;
+//   sortBy: string;
+//   genre: string;
+// }
 
 export default function UpcomingPage() {
   const { data: upcoming, isLoading } = useMovies.useUpcoming();
 
   const [timeWindow, setTimeWindow] = useState("week");
   const navigate = useNavigate(); // Add this hook
-  const [filter, setFilter] = useState<FilterState>({
-    timeWindow: "week",
-    sortBy: "popularity",
-    genre: "all",
-  });
+  // const [filter, setFilter] = useState<FilterState>({
+  //   timeWindow: "week",
+  //   sortBy: "popularity",
+  //   genre: "all",
+  // });
 
   // Handler for card click
   const handleMovieClick = (movieId: number) => {
@@ -97,11 +98,11 @@ export default function UpcomingPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {upcoming?.map((movie) => (
+              {upcoming?.map((movie: Movie) => (
                 <MovieCard
                   key={movie.id}
                   movie={movie}
-                  onClick={() => handleMovieClick(movie.id)}
+                  onNavigate={() => handleMovieClick(movie.id)}
                 />
               ))}
             </div>

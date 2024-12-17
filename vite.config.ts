@@ -4,19 +4,19 @@ import path from "path";
 import { compression } from "vite-plugin-compression2";
 
 export default defineConfig({
-  base: '/movieverse/',
+  base: "/movieverse/",
   plugins: [
     react(),
     compression({
       algorithm: "gzip",
-      threshold: 1024, // Only compress files bigger than 1KB
+      threshold: 1024,
       include: /\.(js|css|html|svg|json)$/,
       exclude: /\.(br|gz|zip)$/,
-      deleteOriginalAssets: false, // Keep original files
+      deleteOriginalAssets: false,
       compressionOptions: {
-        level: 9, // Highest compression level
+        level: 9,
       },
-      skipIfLargerOrEqual: true, // Skip if compressed file is larger than original
+      skipIfLargerOrEqual: true,
     }),
   ],
   resolve: {
@@ -26,7 +26,6 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    // Add build optimizations
     rollupOptions: {
       output: {
         manualChunks: {

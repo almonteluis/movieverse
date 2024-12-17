@@ -17,8 +17,8 @@ import {
   useMovieCredits,
   useSimilarMovies,
 } from "@/hooks/useMovieDetails";
-import { Cast, Movie, SimilarMovie } from "@/types/movie";
 import { formatCurrency } from "@/utils/formatters";
+import { Movie, Cast, SimilarMovie } from "@/types/api.types";
 
 // Part of MovieDetail component
 function HeroSection({ movie }: { movie: Movie }) {

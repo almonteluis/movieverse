@@ -1,9 +1,9 @@
 // src/hooks/useMovie.ts
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+// import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { movieService } from "@/services/movieService";
 import { tmdbService } from "@/services/tmdbService";
-import { Crew, Cast } from "@/types/movie";
-import { Movie } from "@/types/api.types";
+import { Movie, Crew, Cast } from "@/types/api.types";
 
 // Base movie details hook
 export function useMovieDetails(movieId: number) {

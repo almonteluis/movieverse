@@ -50,9 +50,13 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
         <div className="relative">
           {/* Movie Poster */}
           <img
-            src={tmdbApi.getImageUrl(movie.poster_path, "w500")}
-            alt={movie.title}
-            className="aspect-[2/3] h-full w-full object-cover"
+            src={
+              movie.poster_path
+                ? tmdbApi.getImageUrl(movie.poster_path, "w500")
+                : undefined
+            }
+            alt={movie.title || ""}
+            className="h-[300px] w-full object-cover"
           />
 
           {/* Hover Overlay */}
