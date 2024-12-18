@@ -11,9 +11,17 @@ export interface PaginatedResponse<T> {
   results: T;
 }
 
+export interface MovieResponse {
+  page: number;
+  results: Movie[];
+  total_pages: number;
+  total_results: number;
+}
+
 export interface Movie {
   id: number;
   title: string;
+  description: string;
   overview: string | null;
   backdrop_path: string | null;
   poster_path: string | null;
@@ -21,7 +29,10 @@ export interface Movie {
   release_date: string | null;
   runtime: number | null;
   budget?: number | null; // Add this
-  revenue?: number | null; // Add this
+  revenue?: number | null; // Add
+  adult: boolean;
+  popularity: number;
+  video: boolean;
   genres?: Array<{
     id: number;
     name: string;
@@ -59,4 +70,22 @@ export interface SimilarMovie extends Movie {
   video: boolean;
   vote_count: number;
   posterUrl: string; // This is the processed URL from the TMDB service
+}
+
+export interface MovieDiscoverParams {
+  page?: number;
+  sort_by?:
+    | "popularity.desc"
+    | "popularity.asc"
+    | "vote_average.desc"
+    | "vote_average.asc"
+    | "release_date.desc"
+    | "release_date.asc";
+  include_adult?: boolean;
+  include_video?: boolean;
+  with_genres?: string;
+  primary_release_year?: number;
+  with_original_language?: string;
+  "vote_average.gte"?: number;
+  "vote_count.gte"?: number;
 }

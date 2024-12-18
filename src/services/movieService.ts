@@ -1,5 +1,12 @@
 import axios from "axios";
-import { type Movie, type Cast, type Video, Crew } from "@/types/api.types";
+import {
+  type Movie,
+  type Cast,
+  type Video,
+  Crew,
+  MovieResponse,
+  MovieDiscoverParams,
+} from "@/types/api.types";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -57,6 +64,23 @@ export const movieService = {
       },
     );
     return data;
+  },
+
+  async discoverMovies(params: MovieDiscoverParams): Promise<MovieResponse> {
+    const searchParmas = new URLSearchParams({
+      api_key: TMDB_API_KEY,
+      ...(params as Record<string, string>),
+    });
+
+    const response = await fetch(
+      `${BASE_URL}/discover/movie?${searchParmas.toString()}`,
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch movies");
+    }
+
+    return response.json();
   },
 
   // getReviews: (movieId: number) =>

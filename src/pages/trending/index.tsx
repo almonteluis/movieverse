@@ -14,15 +14,11 @@ import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
 
 export default function TrendingPage() {
-  const { data: trending, isLoading } = useMovies.useTrending();
-
   const [timeWindow, setTimeWindow] = useState("week");
+  const { data: trendingData, isLoading } = useMovies.useTrending(timeWindow);
   const navigate = useNavigate();
-  // const [filter, setFilter] = useState({
-  //   timeWindow: "week",
-  //   sortBy: "popularity",
-  //   genre: "all",
-  // });
+
+  const movies = trendingData?.results || [];
 
   return (
     <div className="min-h-screen pyn-8">
@@ -31,7 +27,7 @@ export default function TrendingPage() {
         <div className="container">
           <h1 className="text-4xl font-bold">Trending Movies</h1>
           <p className="mt-2 text-muted-foreground">
-            Discover what popular right now
+            Discover what's popular right now
           </p>
         </div>
       </div>
@@ -85,7 +81,7 @@ export default function TrendingPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {trending?.results.map((movie) => (
+            {movies.map((movie) => (
               <MovieCard
                 key={movie.id}
                 movie={movie}

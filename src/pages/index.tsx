@@ -1,9 +1,8 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useMovies } from "@/hooks/useMovies";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { tmdbApi } from "@/services/tmdb";
-
+import { Card } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { useMovies } from "../hooks/useMovies";
+import { ErrorMessage } from "../components/ui/error-message";
+import { tmdbApi } from "../services/tmdb";
 import {
   Search,
   PlayCircle,
@@ -16,7 +15,7 @@ import {
   HeroSkeleton,
   MovieCardSkeleton,
   ComingSoonCardSkeleton,
-} from "@/components/ui/skeletons";
+} from "../components/ui/skeletons";
 
 export default function HomePage() {
   const {
@@ -50,7 +49,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-
       {isNowPlayingError ? (
         <ErrorMessage
           message="Failed to load featured movie"
@@ -76,7 +74,7 @@ export default function HomePage() {
                 {featuredMovie.title}
               </h1>
               <p className="mb-6 max-w-2xl text-lg text-gray-200">
-                {featuredMovie.description}
+                {featuredMovie.overview}
               </p>
               <div className="flex gap-4">
                 <Button size="lg" className="gap-2">
@@ -181,7 +179,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {isLoadingTrending
               ? [...Array(5)].map((_, i) => <MovieCardSkeleton key={i} />)
-              : trending?.results.slice(0, 5).map((movie) => (
+              : (trending || []).slice(0, 5).map((movie) => (
                   <Card key={movie.id} className="group overflow-hidden">
                     <div className="relative overflow-hidden">
                       <img
@@ -197,7 +195,7 @@ export default function HomePage() {
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-4">
                         <div className="flex items-center gap-2 text-white">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span>{movie.vote_average.toFixed(1)}</span>
+                          <span>{movie.vote_average?.toFixed(1)}</span>
                         </div>
                       </div>
                     </div>
@@ -206,7 +204,7 @@ export default function HomePage() {
                         {movie.title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(movie.release_date).getFullYear()}
+                        {movie.release_date && new Date(movie.release_date).getFullYear()}
                       </p>
                     </div>
                   </Card>
@@ -231,7 +229,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {isLoadingUpcoming
               ? [...Array(3)].map((_, i) => <ComingSoonCardSkeleton key={i} />)
-              : upcoming?.slice(0, 3).map((movie) => (
+              : (upcoming || []).slice(0, 3).map((movie) => (
                   <Card key={movie.id} className="flex overflow-hidden">
                     <img
                       src={tmdbApi.getImageUrl(movie.poster_path, "w342")}

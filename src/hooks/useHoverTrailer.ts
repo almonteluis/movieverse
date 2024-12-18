@@ -1,55 +1,53 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { tmdbApi } from "@/services/tmdb";
+import { tmdbApi } from "../services/tmdb";
+import { Video } from "../types/api.types";
 
-export function useHoverTrailer(movieId: number) {
-  const [isHovering, setIsHovering] = useState(false);
+interface UseHoverTrailerResult {
+  showTrailer: boolean;
+  videoData: Video | undefined;
+  isLoadingVideo: boolean;
+  handlers: {
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+  };
+}
+
+export function useHoverTrailer(movieId: number): UseHoverTrailerResult {
   const [showTrailer, setShowTrailer] = useState(false);
-  const timerRef = useRef<number>();
 
-  const { data: videos, isLoading: isLoadingVideo } = useQuery({
+  // Fetch video data with React Query
+  const {
+    data: videoData,
+    isLoading: isLoadingVideo,
+  } = useQuery({
     queryKey: ["movie", movieId, "videos"],
     queryFn: async () => {
       const { data } = await tmdbApi.movies.getVideos(movieId);
-      // Find trailer or teaser
-      return data.results.find(
-        (video: any) => video.type === "Trailer" || video.type === "Teaser",
+      // Find the first trailer or teaser
+      const video = data.results.find(
+        (v) => v.type === "Trailer" || v.type === "Teaser"
       );
+      return video;
     },
-    enabled: isHovering, // Only fetch when hovering
+    enabled: false, // Don't fetch automatically
   });
 
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-    timerRef.current = window.setTimeout(() => {
-      setShowTrailer(true);
-    }, 2000);
+  const onMouseEnter = useCallback(() => {
+    setShowTrailer(true);
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
+  const onMouseLeave = useCallback(() => {
     setShowTrailer(false);
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
   }, []);
 
   return {
-    isHovering,
     showTrailer,
-    videoData: videos,
+    videoData,
     isLoadingVideo,
     handlers: {
-      onMouseEnter: handleMouseEnter,
-      onMouseLeave: handleMouseLeave,
+      onMouseEnter,
+      onMouseLeave,
     },
   };
 }

@@ -1,13 +1,15 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card } from "@/components/ui/card";
+import { Skeleton } from "./skeleton";
 
 export function HeroSkeleton() {
   return (
-    <div className="relative h-[80vh] w-full overflow-hidden">
-      <Skeleton className="absolute inset-0" />
+    <div className="relative h-[80vh] w-full overflow-hidden bg-muted">
+      <div className="absolute inset-0">
+        <Skeleton className="h-full w-full" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      </div>
       <div className="relative z-10 flex h-full items-end">
         <div className="container pb-16">
-          <Skeleton className="mb-4 h-14 w-2/3" />
+          <Skeleton className="mb-4 h-12 w-2/3" />
           <Skeleton className="mb-6 h-20 w-1/2" />
           <div className="flex gap-4">
             <Skeleton className="h-12 w-32" />
@@ -21,36 +23,25 @@ export function HeroSkeleton() {
 
 export function MovieCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
+    <div className="overflow-hidden rounded-lg border bg-card">
       <Skeleton className="h-[300px] w-full" />
-      <div className="p-4 space-y-2">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/4" />
+      <div className="p-4">
+        <Skeleton className="mb-2 h-5 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
       </div>
-    </Card>
+    </div>
   );
 }
 
 export function ComingSoonCardSkeleton() {
   return (
-    <Card className="flex overflow-hidden">
-      <Skeleton className="h-[200px] w-[133px] shrink-0" />
-      <div className="p-4 w-full space-y-2">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-8 w-24" />
+    <div className="flex overflow-hidden rounded-lg border bg-card">
+      <Skeleton className="h-[200px] w-[133px]" />
+      <div className="flex-1 p-4">
+        <Skeleton className="mb-2 h-6 w-3/4" />
+        <Skeleton className="mb-4 h-16 w-full" />
+        <Skeleton className="h-8 w-32" />
       </div>
-    </Card>
-  );
-}
-
-export function CategoryCardSkeleton() {
-  return (
-    <Card className="overflow-hidden">
-      <Skeleton className="h-48 w-full" />
-      <div className="absolute bottom-4 left-4">
-        <Skeleton className="h-6 w-24" />
-      </div>
-    </Card>
+    </div>
   );
 }
