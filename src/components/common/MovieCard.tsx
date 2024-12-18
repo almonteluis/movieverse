@@ -1,11 +1,12 @@
-import React, { useRef, useState, KeyboardEvent} from "react";
+import React, { useRef, useState, KeyboardEvent, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Calendar, Clock, Play, Plus, Share, Heart } from "lucide-react";
+import { Star, Calendar, Clock, Play, Plus, Share, Heart, Monitor } from "lucide-react";
 import { tmdbApi } from "@/services/tmdb";
+import { watchmodeApi } from "@/services/watchmode";
 import { useHoverTrailer } from "@/hooks/useHoverTrailer";
 import { VideoPlayer } from "@/components/features/VideoPlayer";
-import { Movie } from "@/types/api.types";
+import { Movie, StreamingSource } from "@/types/api.types";
 import { Skeleton } from "../ui/skeleton";
 
 interface MovieCardProps {
@@ -18,6 +19,7 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWatchlist, setIsWatchlist] = useState(false);
+  const [streamingSources, setStreamingSources] = useState<StreamingSource[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -26,12 +28,25 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
     handlers: { onMouseEnter, onMouseLeave },
   } = useHoverTrailer(movie.id);
 
+  // Fetch streaming sources when component mounts
+  useEffect(() => {
+    const fetchStreamingSources = async () => {
+      if (movie.title && movie.release_date) {
+        const year = new Date(movie.release_date).getFullYear().toString();
+        const sources = await watchmodeApi.getStreamingInfoForMovie(movie.title, year);
+        setStreamingSources(sources);
+      }
+    };
+    fetchStreamingSources();
+  }, [movie.title, movie.release_date]);
+
   // Handle card click without interfering with trailer button
   const handleCardClick = (e: React.MouseEvent) => {
-    // If clicking on an action button or video player, don't navigate
+    // If clicking on an action button, video player, or streaming link, don't navigate
     if (
       (e.target as HTMLElement).closest("button") ||
-      (e.target as HTMLElement).closest(".video-player")
+      (e.target as HTMLElement).closest(".video-player") ||
+      (e.target as HTMLElement).closest("a")
     ) {
       e.stopPropagation();
       return;
@@ -66,6 +81,19 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
   // Toggle favorite/watchlist
   const toggleFavorite = () => setIsFavorite(!isFavorite);
   const toggleWatchlist = () => setIsWatchlist(!isWatchlist);
+
+  // Get platform icon
+  const getPlatformIcon = (name: string) => {
+    const iconMap: { [key: string]: string } = {
+      'Netflix': '/netflix-icon.png',
+      'Hulu': '/hulu-icon.png',
+      'Max': '/max-icon.png',
+      'Prime Video': '/prime-icon.png',
+      'Disney+': '/disney-icon.png',
+      'Apple TV+': '/apple-tv-icon.png'
+    };
+    return iconMap[name] || null;
+  };
 
   return (
     <>
@@ -174,6 +202,39 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
               </>
             )}
           </div>
+
+          {/* Streaming Platforms */}
+          {streamingSources.length > 0 && (
+            <div className="mt-2 pt-2 border-t">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
+                <Monitor className="h-4 w-4" />
+                <span>Available on:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {streamingSources.map((source) => (
+                  <a
+                    key={source.source_id}
+                    href={source.web_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-secondary hover:bg-secondary/80 transition-colors"
+                  >
+                    {getPlatformIcon(source.name) ? (
+                      <img
+                        src={getPlatformIcon(source.name)}
+                        alt={source.name}
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <Monitor className="w-4 h-4" />
+                    )}
+                    <span className="text-xs">{source.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 

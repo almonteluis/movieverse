@@ -1,24 +1,51 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { MovieCardSkeleton } from "@/components/ui/skeletons";
-import { useMovies } from "@/hooks/useMovies";
+} from "../../components/ui/select";
+import { MovieCardSkeleton } from "../../components/ui/skeletons";
+import { useMovies } from "../../hooks/useMovies";
 import { Filter } from "lucide-react";
-import { MovieCard } from "@/components/common/MovieCard";
+import { MovieCard } from "../../components/common/MovieCard";
+import { InfiniteData } from "@tanstack/react-query";
+import { Movie } from "../../types/api.types";
+
+interface MovieResponse {
+  results: Movie[];
+  nextPage: number | undefined;
+  hasMore: boolean;
+}
 
 export default function TrendingPage() {
   const [timeWindow, setTimeWindow] = useState("week");
-  const { data: trendingData, isLoading } = useMovies.useTrending(timeWindow);
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMovies.useInfiniteMovies("trending", timeWindow) as {
+    data?: InfiniteData<MovieResponse>;
+    isLoading: boolean;
+    fetchNextPage: () => void;
+    hasNextPage: boolean | undefined;
+    isFetchingNextPage: boolean;
+  };
   const navigate = useNavigate();
 
-  const movies = trendingData?.results || [];
+  // Flatten all pages of results into a single array
+  const movies = data?.pages.flatMap(page => page.results) ?? [];
+
+  const handleLoadMore = () => {
+    if (!isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
 
   return (
     <div className="min-h-screen pyn-8">
@@ -92,11 +119,18 @@ export default function TrendingPage() {
         )}
 
         {/* Load More */}
-        <div className="mt-8 flex justify-center">
-          <Button variant="outline" size="lg">
-            Load More
-          </Button>
-        </div>
+        {hasNextPage && !isLoading && (
+          <div className="mt-8 flex justify-center">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={handleLoadMore}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? 'Loading...' : 'Load More'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

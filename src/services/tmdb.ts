@@ -4,6 +4,42 @@ import { Movie, PaginatedResponse } from "../types/api.types";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
+if (!TMDB_API_KEY) {
+  throw new Error('TMDB API key is not defined in environment variables');
+}
+
+// Create axios instance with default config
+const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+  params: {
+    api_key: TMDB_API_KEY
+  },
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
+
+// Add response interceptor for debugging
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    if (axios.isAxiosError(error)) {
+      console.error('TMDB API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+        }
+      });
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const tmdbApi = {
   // Helper for image URLs
   getImageUrl: (path: string | null, size = "original") =>
@@ -18,9 +54,42 @@ export const tmdbApi = {
 
   // Enhanced movies endpoints with pagination and error handling
   movies: {
+    // Add search endpoint
+    search: async (query: string, page: number = 1) => {
+      try {
+        const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
+          `/search/movie`,
+          {
+            params: {
+              language: "en-US",
+              query,
+              page,
+              include_adult: false,
+            },
+          }
+        );
+
+        return {
+          results: data.results,
+          page: data.page,
+          total_pages: data.total_pages,
+          total_results: data.total_results,
+        };
+      } catch (error) {
+        console.error('Search movies error:', error);
+        if (axios.isAxiosError(error)) {
+          throw new Error(
+            `Failed to search movies: ${error.response?.data?.message || error.message}`
+          );
+        }
+        throw error;
+      }
+    },
+
     fetchMovies: async (
       type: "now_playing" | "trending" | "top_rated" | "upcoming",
-      page: number = 1
+      page: number = 1,
+      timeWindow: string = "week"
     ): Promise<{
       results: Movie[];
       nextPage: number | undefined;
@@ -29,14 +98,13 @@ export const tmdbApi = {
       try {
         let endpoint = "";
         const params: Record<string, any> = {
-          api_key: TMDB_API_KEY,
           language: "en-US",
           page,
         };
 
         switch (type) {
           case "trending":
-            endpoint = "/trending/movie/week";
+            endpoint = `/trending/movie/${timeWindow}`;
             break;
           case "now_playing":
           case "top_rated":
@@ -47,8 +115,9 @@ export const tmdbApi = {
             throw new Error("Invalid movie type");
         }
 
-        const { data } = await axios.get<PaginatedResponse<Movie[]>>(
-          `${BASE_URL}${endpoint}`,
+        console.log('Fetching movies:', { endpoint, params });
+        const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
+          endpoint,
           { params }
         );
 
@@ -58,6 +127,7 @@ export const tmdbApi = {
           hasMore: page < data.total_pages,
         };
       } catch (error) {
+        console.error('Fetch movies error:', error);
         if (axios.isAxiosError(error)) {
           throw new Error(
             `Failed to fetch ${type} movies: ${error.response?.data?.message || error.message}`
@@ -77,11 +147,10 @@ export const tmdbApi = {
       "primary_release_year"?: number;
     }) => {
       try {
-        const { data } = await axios.get<PaginatedResponse<Movie[]>>(
-          `${BASE_URL}/discover/movie`,
+        const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
+          `/discover/movie`,
           {
             params: {
-              api_key: TMDB_API_KEY,
               language: "en-US",
               include_adult: false,
               ...params,
@@ -96,6 +165,7 @@ export const tmdbApi = {
           total_results: data.total_results,
         };
       } catch (error) {
+        console.error('Discover movies error:', error);
         if (axios.isAxiosError(error)) {
           throw new Error(
             `Failed to discover movies: ${error.response?.data?.message || error.message}`
@@ -107,44 +177,39 @@ export const tmdbApi = {
 
     // Original endpoints maintained for backward compatibility
     getNowPlaying: () =>
-      axios.get(`${BASE_URL}/movie/now_playing`, {
+      axiosInstance.get(`/movie/now_playing`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
           page: 1,
         },
       }),
 
     getTrending: () =>
-      axios.get(`${BASE_URL}/trending/movie/week`, {
+      axiosInstance.get(`/trending/movie/week`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
         },
       }),
 
     getTopRated: () =>
-      axios.get(`${BASE_URL}/movie/top_rated`, {
+      axiosInstance.get(`/movie/top_rated`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
           page: 1,
         },
       }),
 
     getUpcoming: () =>
-      axios.get(`${BASE_URL}/movie/upcoming`, {
+      axiosInstance.get(`/movie/upcoming`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
           page: 1,
         },
       }),
 
     getVideos: (movieId: number) =>
-      axios.get(`${BASE_URL}/movie/${movieId}/videos`, {
+      axiosInstance.get(`/movie/${movieId}/videos`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
         },
       }),
@@ -152,17 +217,15 @@ export const tmdbApi = {
 
   genres: {
     getMovieGenres: () =>
-      axios.get(`${BASE_URL}/genre/movie/list`, {
+      axiosInstance.get(`/genre/movie/list`, {
         params: {
-          api_key: TMDB_API_KEY,
           language: "en-US",
         },
       }),
 
     getMoviesByGenre: (genreId: number) =>
-      axios.get(`${BASE_URL}/discover/movie`, {
+      axiosInstance.get(`/discover/movie`, {
         params: {
-          api_key: TMDB_API_KEY,
           with_genres: genreId,
           sort_by: "popularity.desc",
           include_adult: false,

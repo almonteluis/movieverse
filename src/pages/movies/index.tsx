@@ -1,23 +1,87 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import {
   Search,
   Filter,
   TrendingUp,
   Calendar,
-  Star,
-  ChevronRight,
 } from "lucide-react";
+import { MovieCard } from "@/components/common/MovieCard";
+import { tmdbApi } from "@/services/tmdb";
+import { Movie } from "@/types/api.types";
 
 const Movies = () => {
+  const navigate = useNavigate();
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState("trending");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Fetch movies based on sort option and search query
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        setLoading(true);
+        let data;
+
+        if (searchQuery) {
+          data = await tmdbApi.movies.search(searchQuery, page);
+          setMovies(prev => page === 1 ? data.results : [...prev, ...data.results]);
+          setHasMore(page < data.total_pages);
+        } else {
+          data = await tmdbApi.movies.fetchMovies(
+            sortBy === "trending" ? "trending" : 
+            sortBy === "popular" ? "now_playing" :
+            sortBy === "topRated" ? "top_rated" : "upcoming",
+            page
+          );
+          setMovies(prev => page === 1 ? data.results : [...prev, ...data.results]);
+          setHasMore(data.hasMore);
+        }
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovies();
+  }, [sortBy, searchQuery, page]);
+
+  // Reset page when changing sort or search
+  useEffect(() => {
+    setPage(1);
+  }, [sortBy, searchQuery]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const input = form.querySelector('input') as HTMLInputElement;
+    setSearchQuery(input.value);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
       {/* Hero Section */}
       <section className="relative h-[40vh] w-full bg-black/60">
         <div className="absolute inset-0">
           <img
-            src="/api/placeholder/1920/1080"
+            src="https://image.tmdb.org/t/p/original/uDgy6hyPd82kOHh6I95FLtLnj6p.jpg"
             alt="Movies Banner"
             className="w-full h-full object-cover opacity-50"
           />
@@ -29,13 +93,15 @@ const Movies = () => {
             Discover Movies
           </h1>
           <div className="max-w-xl w-full">
-            <div className="relative">
-              <Input
-                placeholder="Search movies..."
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border-white/20 text-white placeholder:text-white/60"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
-            </div>
+            <form onSubmit={handleSearch}>
+              <div className="relative">
+                <Input
+                  placeholder="Search movies..."
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
+              </div>
+            </form>
           </div>
         </div>
       </section>
@@ -50,11 +116,16 @@ const Movies = () => {
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
               </Button>
-              <Select defaultValue="trending">
-                <option value="trending">Trending</option>
-                <option value="popular">Popular</option>
-                <option value="topRated">Top Rated</option>
-                <option value="upcoming">Upcoming</option>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="trending">Trending</SelectItem>
+                  <SelectItem value="popular">Popular</SelectItem>
+                  <SelectItem value="topRated">Top Rated</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -69,42 +140,27 @@ const Movies = () => {
 
           {/* Movies Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {[...Array(10)].map((_, i) => (
-              <div key={i} className="group relative">
-                <div className="aspect-[2/3] rounded-lg overflow-hidden bg-muted">
-                  <img
-                    src="/api/placeholder/300/450"
-                    alt="Movie poster"
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <div className="mt-2 space-y-1">
-                  <h3 className="font-medium line-clamp-1 group-hover:text-primary">
-                    Movie Title
-                  </h3>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      4.5
-                    </span>
-                    <span>2024</span>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
+            {movies.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                onNavigate={(id) => navigate(`/movie/${id}`)}
+              />
             ))}
           </div>
 
           {/* Load More */}
-          <div className="py-8 text-center">
-            <Button variant="outline">Load More Movies</Button>
-          </div>
+          {hasMore && (
+            <div className="py-8 text-center">
+              <Button 
+                variant="outline" 
+                onClick={handleLoadMore}
+                disabled={loading}
+              >
+                {loading ? "Loading..." : "Load More Movies"}
+              </Button>
+            </div>
+          )}
         </div>
       </main>
     </div>

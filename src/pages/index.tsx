@@ -4,7 +4,6 @@ import { useMovies } from "../hooks/useMovies";
 import { ErrorMessage } from "../components/ui/error-message";
 import { tmdbApi } from "../services/tmdb";
 import {
-  Search,
   PlayCircle,
   Star,
   TrendingUp,
@@ -16,6 +15,7 @@ import {
   MovieCardSkeleton,
   ComingSoonCardSkeleton,
 } from "../components/ui/skeletons";
+import { SearchDialog } from "../components/common/SearchDialog";
 
 export default function HomePage() {
   const {
@@ -26,7 +26,7 @@ export default function HomePage() {
   } = useMovies.useNowPlaying();
 
   const {
-    data: trending,
+    data: trendingData,
     isLoading: isLoadingTrending,
     isError: isTrendingError,
     refetch: refetchTrending,
@@ -45,6 +45,9 @@ export default function HomePage() {
     overview: "Loading...",
     backdrop_path: null,
   };
+
+  // Get trending movies from the new response structure
+  const trending = trendingData?.results || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,14 +94,7 @@ export default function HomePage() {
 
       {/* Search Section */}
       <section className="container py-8">
-        <div className="relative">
-          <input
-            type="search"
-            placeholder="Search for movies..."
-            className="w-full rounded-lg border border-border bg-background px-4 py-3 pl-12 text-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
-        </div>
+        <SearchDialog />
       </section>
 
       {/* Categories Section */}
@@ -179,7 +175,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {isLoadingTrending
               ? [...Array(5)].map((_, i) => <MovieCardSkeleton key={i} />)
-              : (trending || []).slice(0, 5).map((movie) => (
+              : trending.slice(0, 5).map((movie) => (
                   <Card key={movie.id} className="group overflow-hidden">
                     <div className="relative overflow-hidden">
                       <img

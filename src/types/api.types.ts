@@ -18,6 +18,20 @@ export interface MovieResponse {
   total_results: number;
 }
 
+export interface StreamingSource {
+  source_id: number;
+  name: string;
+  type: string;
+  region: string;
+  web_url: string;
+  ios_url?: string;
+  android_url?: string;
+  format: string;
+  price?: number;
+  seasons?: number;
+  episodes?: number;
+}
+
 export interface Movie {
   id: number;
   title: string;
@@ -28,8 +42,8 @@ export interface Movie {
   vote_average: number | null;
   release_date: string | null;
   runtime: number | null;
-  budget?: number | null; // Add this
-  revenue?: number | null; // Add
+  budget?: number | null;
+  revenue?: number | null;
   adult: boolean;
   popularity: number;
   video: boolean;
@@ -37,6 +51,7 @@ export interface Movie {
     id: number;
     name: string;
   }>;
+  streaming_sources?: StreamingSource[];
 }
 
 export interface Cast {
@@ -69,7 +84,7 @@ export interface SimilarMovie extends Movie {
   popularity: number;
   video: boolean;
   vote_count: number;
-  posterUrl: string; // This is the processed URL from the TMDB service
+  posterUrl: string;
 }
 
 export interface MovieDiscoverParams {

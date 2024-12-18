@@ -26,10 +26,10 @@ interface DiscoverParams {
 }
 
 export const useMovies = {
-  useInfiniteMovies: (type: "now_playing" | "trending" | "top_rated" | "upcoming") => {
+  useInfiniteMovies: (type: "now_playing" | "trending" | "top_rated" | "upcoming", timeWindow?: string) => {
     return useInfiniteQuery<MovieResponse, Error, MovieResponse>({
-      queryKey: ["movies", type],
-      queryFn: ({ pageParam }) => tmdbApi.movies.fetchMovies(type, pageParam as number),
+      queryKey: ["movies", type, timeWindow],
+      queryFn: ({ pageParam }) => tmdbApi.movies.fetchMovies(type, pageParam as number, timeWindow),
       getNextPageParam: (lastPage) => lastPage.nextPage,
       initialPageParam: 1,
       staleTime: 5 * 60 * 1000,
@@ -79,7 +79,7 @@ export const useMovies = {
     return useQuery<MovieResponse>({
       queryKey: ["trending", timeWindow, page],
       queryFn: async () => {
-        return tmdbApi.movies.fetchMovies("trending", page);
+        return tmdbApi.movies.fetchMovies("trending", page, timeWindow);
       },
     });
   },
