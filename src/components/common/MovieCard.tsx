@@ -1,12 +1,12 @@
 import React, { useRef, useState, KeyboardEvent, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { Star, Calendar, Clock, Play, Plus, Share, Heart, Monitor } from "lucide-react";
-import { tmdbApi } from "@/services/tmdb";
-import { watchmodeApi } from "@/services/watchmode";
-import { useHoverTrailer } from "@/hooks/useHoverTrailer";
-import { VideoPlayer } from "@/components/features/VideoPlayer";
-import { Movie, StreamingSource } from "@/types/api.types";
+import { tmdbApi } from "../../services/tmdb";
+import { watchmodeApi } from "../../services/watchmode";
+import { useHoverTrailer } from "../../hooks/useHoverTrailer";
+import { VideoPlayer } from "../../components/features/VideoPlayer";
+import { Movie, StreamingSource } from "../../types/api.types";
 import { Skeleton } from "../ui/skeleton";
 
 interface MovieCardProps {
@@ -15,7 +15,7 @@ interface MovieCardProps {
 }
 
 export function MovieCard({ movie, onNavigate }: MovieCardProps) {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isWatchlist, setIsWatchlist] = useState(false);
@@ -27,6 +27,13 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
     videoData,
     handlers: { onMouseEnter, onMouseLeave },
   } = useHoverTrailer(movie.id);
+
+  // Cleanup effect to close modal when component unmounts
+  useEffect(() => {
+    return () => {
+      setShowModal(false);
+    };
+  }, []);
 
   // Fetch streaming sources when component mounts
   useEffect(() => {
@@ -52,7 +59,10 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
       return;
     }
 
-    // Otherwise, navigate to the movie detail page
+    // Close modal before navigating
+    setShowModal(false);
+    
+    // Navigate to the movie detail page
     onNavigate?.(movie.id);
   };
 
@@ -60,6 +70,7 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
+      setShowModal(false); // Close modal before navigating
       onNavigate?.(movie.id);
     }
   };
@@ -239,7 +250,7 @@ export function MovieCard({ movie, onNavigate }: MovieCardProps) {
       </Card>
 
       {/* Video Modal */}
-      {videoData && (
+      {showModal && videoData && (
         <VideoPlayer
           isOpen={showModal}
           onClose={() => setShowModal(false)}
