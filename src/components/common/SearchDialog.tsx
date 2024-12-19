@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { useStore } from '@/store';
@@ -27,6 +27,10 @@ export function SearchDialog() {
         </button>
       </DialogTrigger>
       <DialogContent className="p-0">
+        <DialogTitle className="sr-only">Search Movies</DialogTitle>
+        <DialogDescription className="sr-only">
+          Search for movies by entering a title
+        </DialogDescription>
         <div className="p-4">
           <Input
             type="search"
@@ -34,6 +38,7 @@ export function SearchDialog() {
             className="h-10"
             autoFocus
             onChange={(e) => handleSearch(e.target.value)}
+            aria-label="Search movies"
           />
         </div>
       </DialogContent>

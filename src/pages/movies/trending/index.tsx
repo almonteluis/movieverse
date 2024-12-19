@@ -1,19 +1,19 @@
 import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
-import { MovieCardSkeleton } from "../../components/ui/skeletons";
-import { useMovies } from "../../hooks/useMovies";
+} from "@/components/ui/select";
+import { MovieCardSkeleton } from "@/components/ui/skeletons";
+import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
-import { MovieCard } from "../../components/common/MovieCard";
+import { MovieCard } from "@/components/common/MovieCard";
 import { InfiniteData } from "@tanstack/react-query";
-import { Movie } from "../../types/api.types";
+import { Movie } from "@/types/api.types";
 
 interface MovieResponse {
   results: Movie[];

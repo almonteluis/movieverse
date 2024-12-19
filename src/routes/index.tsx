@@ -3,8 +3,8 @@ import { Layout } from "@/components/layout";
 import Home from "@/pages";
 import Movies from "@/pages/movies";
 import { MovieDetail } from "@/pages/movie/id";
-import TrendingPage from "@/pages/trending";
-import UpcomingPage from "@/pages/upcoming";
+import TrendingPage from "@/pages/movies/trending";
+import UpcomingPage from "@/pages/movies/upcoming";
 import Watchlist from "@/pages/watchlist";
 import NotFound from "@/pages/not-found";
 
