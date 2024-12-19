@@ -25,44 +25,66 @@ export interface StreamingInfo {
   episodes?: number;
 }
 
+interface WatchmodeSearchResult {
+  title_results: Array<{
+    id: number;
+    name: string;
+    type: string;
+    year: number;
+    imdb_id: string;
+    tmdb_id: number;
+    tmdb_type: string;
+  }>;
+}
+
 export const watchmodeApi = {
-  // Search for a title to get Watchmode ID
-  searchTitle: async (title: string) => {
+  // Search for a title using TMDB ID
+  getTitleIdByTmdbId: async (tmdbId: number) => {
     try {
-      const { data } = await axiosInstance.get('/search', {
-        params: {
-          search_field: 'name',
-          search_value: title,
-          types: 'movie',
+      const { data } = await axiosInstance.get<WatchmodeSearchResult>(
+        "/search",
+        {
+          params: {
+            search_field: "tmdb_movie_id",
+            search_value: tmdbId,
+            types: "movie",
+          },
         },
-      });
+      );
       return data.title_results?.[0]?.id;
     } catch (error) {
-      console.error('Error searching title:', error);
+      console.error("Error searching title:", error);
       return null;
     }
   },
 
   // Get streaming sources for a title
-  getStreamingSources: async (titleId: string): Promise<StreamingInfo[]> => {
+  getStreamingSources: async (titleId: number): Promise<StreamingInfo[]> => {
     try {
       const { data } = await axiosInstance.get(`/title/${titleId}/sources/`);
       // Filter to include only subscription and free services
-      return data.filter((source: StreamingInfo) => 
-        ['sub', 'free'].includes(source.type) &&
-        ['Netflix', 'Hulu', 'Max', 'Prime Video', 'Disney+', 'Apple TV+'].includes(source.name)
+      return data.filter(
+        (source: StreamingInfo) =>
+          ["sub", "free"].includes(source.type) &&
+          [
+            "Netflix",
+            "Hulu",
+            "Max",
+            "Prime Video",
+            "Disney+",
+            "Apple TV+",
+          ].includes(source.name),
       );
     } catch (error) {
-      console.error('Error fetching streaming sources:', error);
+      console.error("Error fetching streaming sources:", error);
       return [];
     }
   },
 
   // Combine search and sources into one convenient method
-  getStreamingInfoForMovie: async (title: string, year?: string) => {
-    const searchQuery = year ? `${title} ${year}` : title;
-    const titleId = await watchmodeApi.searchTitle(searchQuery);
+  getStreamingInfoForMovie: async (tmdbId: number) => {
+    const titleId = await watchmodeApi.getTitleIdByTmdbId(tmdbId);
     if (!titleId) return [];
     return watchmodeApi.getStreamingSources(titleId);
-  }
+  },
 };
