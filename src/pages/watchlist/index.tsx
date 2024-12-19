@@ -5,14 +5,14 @@ import { Trash2, Loader2 } from "lucide-react";
 import { useWatchlistStreaming } from "../../hooks/useWatchlistStreaming";
 import { Movie } from "../../types/api.types";
 
-const StreamingServiceSection = ({
-  name,
-  movies,
-  iconPath,
-}: {
-  name: string;
-  movies: Movie[];
-  iconPath?: string;
+const StreamingServiceSection = ({ 
+  name, 
+  movies, 
+  iconPath 
+}: { 
+  name: string; 
+  movies: Movie[]; 
+  iconPath?: string 
 }) => (
   <div className="mb-8">
     <div className="flex items-center gap-2 mb-4">
@@ -24,7 +24,11 @@ const StreamingServiceSection = ({
     </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} onWatchlistRemove={() => {}} />
+        <MovieCard
+          key={`${name}-${movie.id}`} // Make key unique per streaming service
+          movie={movie}
+          onWatchlistRemove={() => {}}
+        />
       ))}
     </div>
   </div>
@@ -37,12 +41,12 @@ const Watchlist = () => {
 
   // Map of streaming service names to their icon paths
   const streamingIcons: Record<string, string> = {
-    Netflix: "/netflix-icon.png",
-    Hulu: "/hulu-icon.png",
-    "Prime Video": "/prime-icon.png",
-    Max: "/max-icon.png",
-    "Disney+": "/disney-icon.png",
-    "Apple TV+": "/apple-tv-icon.png",
+    'Netflix': '/netflix-icon.png',
+    'Hulu': '/hulu-icon.png',
+    'Prime Video': '/prime-icon.png',
+    'Max': '/max-icon.png',
+    'Disney+': '/disney-icon.png',
+    'Apple TV+': '/apple-tv-icon.png'
   };
 
   return (
@@ -74,14 +78,16 @@ const Watchlist = () => {
           <span className="ml-2">Fetching streaming information...</span>
         </div>
       ) : error ? (
-        <div className="text-center py-12 text-red-500">{error}</div>
+        <div className="text-center py-12 text-red-500">
+          {error}
+        </div>
       ) : (
         <div className="space-y-8">
           {/* Display available streaming services first */}
           {Object.entries(moviesByService)
             .sort(([a], [b]) => {
-              if (a === "Not Available") return 1;
-              if (b === "Not Available") return -1;
+              if (a === 'Not Available') return 1;
+              if (b === 'Not Available') return -1;
               return a.localeCompare(b);
             })
             .map(([service, movies]) => (
