@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,18 +9,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import {
-  Search,
-  Filter,
-  TrendingUp,
-  Calendar,
-} from "lucide-react";
+import { Search, Filter, TrendingUp, Calendar } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
 import { tmdbApi } from "@/services/tmdb";
 import { Movie } from "@/types/api.types";
 
 const Movies = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("trending");
@@ -37,16 +32,24 @@ const Movies = () => {
 
         if (searchQuery) {
           data = await tmdbApi.movies.search(searchQuery, page);
-          setMovies(prev => page === 1 ? data.results : [...prev, ...data.results]);
+          setMovies((prev) =>
+            page === 1 ? data.results : [...prev, ...data.results],
+          );
           setHasMore(page < data.total_pages);
         } else {
           data = await tmdbApi.movies.fetchMovies(
-            sortBy === "trending" ? "trending" : 
-            sortBy === "popular" ? "now_playing" :
-            sortBy === "topRated" ? "top_rated" : "upcoming",
-            page
+            sortBy === "trending"
+              ? "trending"
+              : sortBy === "popular"
+                ? "now_playing"
+                : sortBy === "topRated"
+                  ? "top_rated"
+                  : "upcoming",
+            page,
           );
-          setMovies(prev => page === 1 ? data.results : [...prev, ...data.results]);
+          setMovies((prev) =>
+            page === 1 ? data.results : [...prev, ...data.results],
+          );
           setHasMore(data.hasMore);
         }
       } catch (error) {
@@ -67,12 +70,12 @@ const Movies = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const input = form.querySelector('input') as HTMLInputElement;
+    const input = form.querySelector("input") as HTMLInputElement;
     setSearchQuery(input.value);
   };
 
   const handleLoadMore = () => {
-    setPage(prev => prev + 1);
+    setPage((prev) => prev + 1);
   };
 
   return (
@@ -141,19 +144,15 @@ const Movies = () => {
           {/* Movies Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {movies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                onNavigate={(id) => navigate(`/movie/${id}`)}
-              />
+              <MovieCard key={movie.id} movie={movie} />
             ))}
           </div>
 
           {/* Load More */}
           {hasMore && (
             <div className="py-8 text-center">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleLoadMore}
                 disabled={loading}
               >

@@ -1,119 +1,60 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import {
-  Search,
-  Menu,
-  X,
-  Bell,
-  User,
-  Heart,
-  Film,
-  Home,
-  TrendingUp,
-} from "lucide-react";
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { SearchDialog } from '@/components/common/SearchDialog';
+import { Bookmark, Film, Home, TrendingUp } from 'lucide-react';
+import { useStore } from '@/store';
 
-const navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const Navbar = () => {
+  const location = useLocation();
+  const watchlist = useStore((state) => state.watchlist);
+
+  const links = [
+    { to: '/', label: 'Home', icon: Home },
+    { to: '/movies', label: 'Movies', icon: Film },
+    { to: '/trending', label: 'Trending', icon: TrendingUp },
+    { to: '/watchlist', label: 'Watchlist', icon: Bookmark, count: watchlist.length },
+  ];
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
-          <Film className="h-6 w-6" />
-          <span className="text-xl font-bold">MovieVerse</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:space-x-6">
-          <Link
-            to="/"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Home
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link to="/" className="mr-6 flex items-center space-x-2">
+            <span className="hidden font-bold sm:inline-block">MovieVerse</span>
           </Link>
-          <Link
-            to="/movies"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Movies
-          </Link>
-          <Link
-            to="/trending"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Trending
-          </Link>
-          <Link
-            to="/watchlist"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Watchlist
-          </Link>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="w-14">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden md:flex">
-            <Heart className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isOpen && (
-        <div className="border-t md:hidden">
-          <div className="container space-y-1 pb-3 pt-2">
-            <Link
-              to="/"
-              className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              <Home className="h-4 w-4" />
-              <span>Home</span>
-            </Link>
-            <Link
-              to="/movies"
-              className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              <Film className="h-4 w-4" />
-              <span>Movies</span>
-            </Link>
-            <Link
-              to="/trending"
-              className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span>Trending</span>
-            </Link>
-            <Link
-              to="/watchlist"
-              className="flex items-center space-x-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-            >
-              <Heart className="h-4 w-4" />
-              <span>Watchlist</span>
-            </Link>
+          <div className="flex items-center space-x-2">
+            {links.map(({ to, label, icon: Icon, count }) => {
+              const isActive = location.pathname === to;
+              return (
+                <Link key={to} to={to}>
+                  <Button
+                    variant={isActive ? 'secondary' : 'ghost'}
+                    className={cn('flex items-center gap-2', {
+                      'bg-muted': isActive,
+                    })}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{label}</span>
+                    {count !== undefined && count > 0 && (
+                      <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                        {count}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+              );
+            })}
           </div>
         </div>
-      )}
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <SearchDialog />
+          </div>
+        </div>
+      </div>
     </nav>
   );
 };
 
-export default navbar;
+export default Navbar;

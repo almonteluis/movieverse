@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -24,7 +24,7 @@ export default function UpcomingPage() {
   const { data: upcoming, isLoading } = useMovies.useUpcoming();
 
   const [timeWindow, setTimeWindow] = useState("week");
-  const navigate = useNavigate(); // Add this hook
+  // const navigate = useNavigate(); // Add this hook
   // const [filter, setFilter] = useState<FilterState>({
   //   timeWindow: "week",
   //   sortBy: "popularity",
@@ -32,9 +32,9 @@ export default function UpcomingPage() {
   // });
 
   // Handler for card click
-  const handleMovieClick = (movieId: number) => {
-    navigate(`/movie/${movieId}`);
-  };
+  // const handleMovieClick = (movieId: number) => {
+  //   navigate(`/movie/${movieId}`);
+  // };
 
   return (
     <div className="min-h-screen pyn-8">
@@ -99,11 +99,7 @@ export default function UpcomingPage() {
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {upcoming?.map((movie: Movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onNavigate={() => handleMovieClick(movie.id)}
-                />
+                <MovieCard key={movie.id} movie={movie} />
               ))}
             </div>
           )}

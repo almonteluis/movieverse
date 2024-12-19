@@ -4,6 +4,8 @@ import { Movie, PaginatedResponse } from "../types/api.types";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
+console.log('TMDB API Key:', TMDB_API_KEY); // Debug log
+
 if (!TMDB_API_KEY) {
   throw new Error('TMDB API key is not defined in environment variables');
 }
@@ -11,12 +13,8 @@ if (!TMDB_API_KEY) {
 // Create axios instance with default config
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  params: {
-    api_key: TMDB_API_KEY
-  },
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
   },
 });
 
@@ -32,10 +30,31 @@ axiosInstance.interceptors.response.use(
         config: {
           url: error.config?.url,
           method: error.config?.method,
+          params: error.config?.params,
           headers: error.config?.headers,
         }
       });
     }
+    return Promise.reject(error);
+  }
+);
+
+// Add request interceptor for debugging
+axiosInstance.interceptors.request.use(
+  config => {
+    // Always add api_key to params
+    config.params = {
+      ...config.params,
+      api_key: TMDB_API_KEY,
+    };
+    console.log('Making request:', {
+      url: config.url,
+      method: config.method,
+      params: config.params,
+    });
+    return config;
+  },
+  error => {
     return Promise.reject(error);
   }
 );
@@ -104,8 +123,8 @@ export const tmdbApi = {
 
         switch (type) {
           case "trending":
-            endpoint = `/trending/movie/${timeWindow}`;
-            break;
+            // Use the correct trending endpoint structure
+            return tmdbApi.movies.getTrending(timeWindow, page);
           case "now_playing":
           case "top_rated":
           case "upcoming":
@@ -175,19 +194,39 @@ export const tmdbApi = {
       }
     },
 
-    // Original endpoints maintained for backward compatibility
+    getTrending: async (timeWindow: string = "week", page: number = 1) => {
+      try {
+        const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
+          `/trending/movie/${timeWindow}`,
+          {
+            params: {
+              language: "en-US",
+              page,
+            },
+          }
+        );
+
+        return {
+          results: data.results,
+          nextPage: page < data.total_pages ? page + 1 : undefined,
+          hasMore: page < data.total_pages,
+        };
+      } catch (error) {
+        console.error('Trending movies error:', error);
+        if (axios.isAxiosError(error)) {
+          throw new Error(
+            `Failed to fetch trending movies: ${error.response?.data?.message || error.message}`
+          );
+        }
+        throw error;
+      }
+    },
+
     getNowPlaying: () =>
       axiosInstance.get(`/movie/now_playing`, {
         params: {
           language: "en-US",
           page: 1,
-        },
-      }),
-
-    getTrending: () =>
-      axiosInstance.get(`/trending/movie/week`, {
-        params: {
-          language: "en-US",
         },
       }),
 

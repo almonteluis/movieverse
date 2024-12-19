@@ -5,6 +5,7 @@ import Movies from "@/pages/movies";
 import { MovieDetail } from "@/pages/movie/id";
 import TrendingPage from "@/pages/trending";
 import UpcomingPage from "@/pages/upcoming";
+import Watchlist from "@/pages/watchlist";
 import NotFound from "@/pages/not-found";
 
 export default function AppRoutes() {
@@ -16,6 +17,7 @@ export default function AppRoutes() {
         <Route path="trending" element={<TrendingPage />} />
         <Route path="upcoming" element={<UpcomingPage />} />
         <Route path="movie/:id" element={<MovieDetail />} />
+        <Route path="watchlist" element={<Watchlist />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

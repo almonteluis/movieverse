@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import {
   Select,
@@ -23,23 +23,18 @@ interface MovieResponse {
 
 export default function TrendingPage() {
   const [timeWindow, setTimeWindow] = useState("week");
-  const {
-    data,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useMovies.useInfiniteMovies("trending", timeWindow) as {
-    data?: InfiniteData<MovieResponse>;
-    isLoading: boolean;
-    fetchNextPage: () => void;
-    hasNextPage: boolean | undefined;
-    isFetchingNextPage: boolean;
-  };
-  const navigate = useNavigate();
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useMovies.useInfiniteMovies("trending", timeWindow) as {
+      data?: InfiniteData<MovieResponse>;
+      isLoading: boolean;
+      fetchNextPage: () => void;
+      hasNextPage: boolean | undefined;
+      isFetchingNextPage: boolean;
+    };
+  // const navigate = useNavigate();
 
   // Flatten all pages of results into a single array
-  const movies = data?.pages.flatMap(page => page.results) ?? [];
+  const movies = data?.pages.flatMap((page) => page.results) ?? [];
 
   const handleLoadMore = () => {
     if (!isFetchingNextPage) {
@@ -109,11 +104,7 @@ export default function TrendingPage() {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {movies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                onNavigate={(movieId) => navigate(`/movie/${movieId}`)}
-              />
+              <MovieCard key={movie.id} movie={movie} />
             ))}
           </div>
         )}
@@ -121,13 +112,13 @@ export default function TrendingPage() {
         {/* Load More */}
         {hasNextPage && !isLoading && (
           <div className="mt-8 flex justify-center">
-            <Button 
-              variant="outline" 
-              size="lg" 
+            <Button
+              variant="outline"
+              size="lg"
               onClick={handleLoadMore}
               disabled={isFetchingNextPage}
             >
-              {isFetchingNextPage ? 'Loading...' : 'Load More'}
+              {isFetchingNextPage ? "Loading..." : "Load More"}
             </Button>
           </div>
         )}
