@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,68 +8,40 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Filter, TrendingUp, Calendar } from "lucide-react";
+import { Filter } from "lucide-react";
 import { MovieCard } from "@/components/common/MovieCard";
-import { tmdbApi } from "@/services/tmdb";
-import { Movie } from "@/types/api.types";
+import { MovieCardSkeleton } from "@/components/ui/skeletons";
+import { useMovies } from "@/hooks/useMovies";
+import { useGenres } from "@/hooks/useGenres";
+import { InfiniteData } from "@tanstack/react-query";
 
 const Movies = () => {
   const [searchParams] = useSearchParams();
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("trending");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [filters, setFilters] = useState({
+    sort_by: "popularity.desc",
+    with_genres: "",
+    "vote_average.gte": 0,
+    primary_release_year: new Date().getFullYear(),
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
   // Get search query from URL params
   const searchQuery = searchParams.get("search") || "";
 
-  // Fetch movies based on sort option and search query
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        setLoading(true);
-        let data;
+  // Get genres
+  const { data: genres } = useGenres();
 
-        if (searchQuery) {
-          data = await tmdbApi.movies.search(searchQuery, page);
-          setMovies((prev) =>
-            page === 1 ? data.results : [...prev, ...data.results]
-          );
-          setHasMore(page < data.total_pages);
-        } else {
-          data = await tmdbApi.movies.fetchMovies(
-            sortBy === "trending"
-              ? "trending"
-              : sortBy === "popular"
-              ? "now_playing"
-              : sortBy === "topRated"
-              ? "top_rated"
-              : "upcoming",
-            page
-          );
-          setMovies((prev) =>
-            page === 1 ? data.results : [...prev, ...data.results]
-          );
-          setHasMore(data.hasMore);
-        }
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch movies using infinite query
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useMovies.useInfiniteDiscover(filters);
 
-    fetchMovies();
-  }, [sortBy, searchQuery, page]);
-
-  // Reset page when changing sort or search
-  useEffect(() => {
-    setPage(1);
-  }, [sortBy, searchQuery]);
+  // Flatten all pages of results into a single array
+  const movies = data?.pages.flatMap((page) => page.results) ?? [];
 
   const handleLoadMore = () => {
-    setPage((prev) => prev + 1);
+    if (!isFetchingNextPage) {
+      fetchNextPage();
+    }
   };
 
   return (
@@ -87,7 +59,9 @@ const Movies = () => {
 
         <div className="relative h-full container max-w-7xl mx-auto px-4 flex flex-col justify-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            {searchQuery ? `Search Results for "${searchQuery}"` : "Discover Movies"}
+            {searchQuery
+              ? `Search Results for "${searchQuery}"`
+              : "Discover Movies"}
           </h1>
         </div>
       </section>
@@ -97,51 +71,138 @@ const Movies = () => {
         <div className="container max-w-7xl mx-auto px-4">
           {/* Filters Section */}
           {!searchQuery && (
-            <div className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filters
-                </Button>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="trending">Trending</SelectItem>
-                    <SelectItem value="popular">Popular</SelectItem>
-                    <SelectItem value="topRated">Top Rated</SelectItem>
-                    <SelectItem value="upcoming">Upcoming</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="py-8 space-y-4">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <Filter className="w-4 h-4 mr-2" />
+                    {showFilters ? "Hide Filters" : "Show Filters"}
+                  </Button>
+                  <Select
+                    value={filters.sort_by}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({ ...prev, sort_by: value }))
+                    }
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popularity.desc">
+                        Most Popular
+                      </SelectItem>
+                      <SelectItem value="popularity.asc">
+                        Least Popular
+                      </SelectItem>
+                      <SelectItem value="vote_average.desc">
+                        Highest Rated
+                      </SelectItem>
+                      <SelectItem value="vote_average.asc">
+                        Lowest Rated
+                      </SelectItem>
+                      <SelectItem value="release_date.desc">Newest</SelectItem>
+                      <SelectItem value="release_date.asc">Oldest</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4" /> Trending
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" /> Latest
-                </span>
-              </div>
+
+              {/* Expanded Filters */}
+              {showFilters && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
+                  {/* Genre Filter */}
+                  <Select
+                    value={filters.with_genres}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({ ...prev, with_genres: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Genre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Genres</SelectItem>
+                      {genres?.map((genre) => (
+                        <SelectItem key={genre.id} value={String(genre.id)}>
+                          {genre.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Year Filter */}
+                  <Select
+                    value={String(filters["primary_release_year"])}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        primary_release_year: value ? Number(value) : undefined,
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Years</SelectItem>
+                      {[...Array(20)].map((_, i) => {
+                        const year = new Date().getFullYear() - i;
+                        return (
+                          <SelectItem key={year} value={String(year)}>
+                            {year}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Rating Filter */}
+                  <Select
+                    value={String(filters["vote_average.gte"])}
+                    onValueChange={(value) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        "vote_average.gte": Number(value),
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Minimum Rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">All Ratings</SelectItem>
+                      <SelectItem value="7">7+ Rating</SelectItem>
+                      <SelectItem value="8">8+ Rating</SelectItem>
+                      <SelectItem value="9">9+ Rating</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           )}
 
           {/* Movies Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
+            {isLoading
+              ? [...Array(10)].map((_, i) => <MovieCardSkeleton key={i} />)
+              : movies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
           </div>
 
           {/* Load More */}
-          {hasMore && (
+          {hasNextPage && !isLoading && (
             <div className="py-8 text-center">
               <Button
                 variant="outline"
                 onClick={handleLoadMore}
-                disabled={loading}
+                disabled={isFetchingNextPage}
               >
-                {loading ? "Loading..." : "Load More Movies"}
+                {isFetchingNextPage ? "Loading..." : "Load More Movies"}
               </Button>
             </div>
           )}

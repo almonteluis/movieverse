@@ -1,20 +1,19 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { tmdbApi } from "../services/tmdb";
-import { Movie } from "../types/api.types";
+import { tmdbApi } from "@/services/tmdb";
+import { Movie } from "@/types/api.types";
 
-interface MovieResponse {
+interface BaseResponse {
   results: Movie[];
-  nextPage: number | undefined;
+  nextPage?: number;
   hasMore: boolean;
 }
 
-interface DiscoverResponse {
-  results: Movie[];
+interface MovieResponse extends BaseResponse {}
+
+interface DiscoverResponse extends BaseResponse {
   page: number;
   total_pages: number;
   total_results: number;
-  nextPage?: number;
-  hasMore: boolean;
 }
 
 interface DiscoverParams {
@@ -22,14 +21,18 @@ interface DiscoverParams {
   year?: number;
   with_genres?: string;
   "vote_average.gte"?: number;
-  "primary_release_year"?: number;
+  primary_release_year?: number;
 }
 
 export const useMovies = {
-  useInfiniteMovies: (type: "now_playing" | "trending" | "top_rated" | "upcoming", timeWindow?: string) => {
+  useInfiniteMovies: (
+    type: "now_playing" | "trending" | "top_rated" | "upcoming",
+    timeWindow?: string,
+  ) => {
     return useInfiniteQuery<MovieResponse, Error, MovieResponse>({
       queryKey: ["movies", type, timeWindow],
-      queryFn: ({ pageParam }) => tmdbApi.movies.fetchMovies(type, pageParam as number, timeWindow),
+      queryFn: ({ pageParam }) =>
+        tmdbApi.movies.fetchMovies(type, pageParam as number, timeWindow),
       getNextPageParam: (lastPage) => lastPage.nextPage,
       initialPageParam: 1,
       staleTime: 5 * 60 * 1000,
@@ -38,7 +41,7 @@ export const useMovies = {
   },
 
   useInfiniteDiscover: (params: DiscoverParams) => {
-    return useInfiniteQuery<DiscoverResponse, Error, DiscoverResponse>({
+    return useInfiniteQuery<DiscoverResponse, Error>({
       queryKey: ["movies", "discover", params],
       queryFn: async ({ pageParam }) => {
         const result = await tmdbApi.movies.discover({
@@ -47,8 +50,10 @@ export const useMovies = {
         });
         return {
           ...result,
-          nextPage: result.page < result.total_pages ? result.page + 1 : undefined,
+          nextPage:
+            result.page < result.total_pages ? result.page + 1 : undefined,
           hasMore: result.page < result.total_pages,
+          results: result.results,
         };
       },
       getNextPageParam: (lastPage) => lastPage.nextPage,
