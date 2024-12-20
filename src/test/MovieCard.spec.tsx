@@ -5,7 +5,7 @@ import { screen, fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "./test-utils";
 import { MovieCard } from "@/components/common/MovieCard";
 import { useStore } from "@/store";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Movie } from "@/types/api.types";
 
 // Mock navigate function
