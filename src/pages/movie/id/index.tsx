@@ -1,23 +1,22 @@
 import { useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Star,
-  // Play,
-  // Heart,
   Clock,
   Calendar,
   Users,
   MessageCircle,
 } from "lucide-react";
-// import { VideoPlayer } from "@/components/features/VideoPlayer";
-import { tmdbService } from "@/services/tmdbService";
+import { VideoGallery } from "../../../components/features/VideoGallery";
+import { tmdbService } from "../../../services/tmdbService";
 import {
   useMovieData,
   useMovieCredits,
   useSimilarMovies,
-} from "@/hooks/useMovieDetails";
-import { formatCurrency } from "@/utils/formatters";
-import { Movie, Cast, SimilarMovie } from "@/types/api.types";
+  useMovieVideos,
+} from "../../../hooks/useMovieDetails";
+import { formatCurrency } from "../../../utils/formatters";
+import { Movie, Cast, SimilarMovie } from "../../../types/api.types";
 
 // Part of MovieDetail component
 function HeroSection({ movie }: { movie: Movie }) {
@@ -135,6 +134,8 @@ function CastSection({ cast }: { cast?: Cast[] }) {
 }
 
 function SimilarMoviesSection({ movies }: { movies: SimilarMovie[] }) {
+  if (!movies?.length) return null;
+
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Similar Movies</h2>
@@ -165,14 +166,13 @@ function SimilarMoviesSection({ movies }: { movies: SimilarMovie[] }) {
 export function MovieDetail() {
   const { id } = useParams<{ id: string }>();
   const movieId = parseInt(id!, 10);
-  // const [showTrailer, setShowTrailer] = useState(false);
 
   if (isNaN(movieId)) {
     return <div>Invalid movie ID</div>;
   }
 
   const { movie, isLoading } = useMovieData(movieId);
-  // const { data: videos } = useMovieVideos(id);
+  const { data: videos, isLoading: videosLoading } = useMovieVideos(movieId);
   const { data: credits } = useMovieCredits(movieId);
   const cast = credits?.cast;
   const { data: similar } = useSimilarMovies(movieId);
@@ -199,6 +199,15 @@ export function MovieDetail() {
             <h2 className="text-2xl font-semibold mb-4">Overview</h2>
             <p className="text-muted-foreground">{movie.overview}</p>
           </div>
+
+          {/* Videos */}
+          {videosLoading ? (
+            <div>Loading videos...</div>
+          ) : videos?.allVideos && videos.allVideos.length > 0 ? (
+            <VideoGallery videos={videos.allVideos} movieTitle={movie.title} />
+          ) : (
+            <div>No videos available</div>
+          )}
 
           {/* Cast */}
           <CastSection cast={cast} />
@@ -237,7 +246,7 @@ export function MovieDetail() {
         {/* Sidebar */}
         <div className="space-y-8">
           {/* Similar Movies */}
-          <SimilarMoviesSection movies={similar} />
+          {similar && <SimilarMoviesSection movies={similar} />}
 
           {/* Movie Details */}
           <div className="space-y-4">
@@ -265,15 +274,6 @@ export function MovieDetail() {
           </div>
         </div>
       </section>
-
-      {/* Video Player */}
-      {/* TODO: Add video data */}
-      {/* <VideoPlayer
-        isOpen={showTrailer}
-        onClose={() => setShowTrailer(false)}
-        videoId="trailer_id"
-        title={movie.title}
-      /> */}
     </div>
   );
 }
