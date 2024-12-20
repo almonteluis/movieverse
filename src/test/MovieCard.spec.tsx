@@ -1,4 +1,6 @@
-import { describe, expect, beforeEach, vi, test } from "vitest";
+/// <reference types="vitest" />
+
+import { describe, expect, beforeEach, test, vi } from "vitest";
 import { screen, fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "./test-utils";
 import { MovieCard } from "@/components/common/MovieCard";
@@ -9,6 +11,20 @@ import { Movie } from "@/types/api.types";
 // Mock navigate function
 const mockNavigate = vi.fn();
 
+// Create a mock store state that matches AppState interface
+const createMockState = (watchlistItems: Movie[] = []) => ({
+  filters: {},
+  setFilters: vi.fn(),
+  searchQuery: "",
+  setSearchQuery: vi.fn(),
+  favorites: [],
+  toggleFavorite: vi.fn(),
+  watchlist: watchlistItems,
+  addToWatchlist: vi.fn(),
+  removeFromWatchlist: vi.fn(),
+  clearWatchlist: vi.fn(),
+});
+
 // Mock react-router-dom
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
@@ -17,9 +33,9 @@ vi.mock("react-router-dom", () => ({
   ),
 }));
 
-// Mock store
+// Mock Zustand store
 vi.mock("@/store", () => ({
-  useStore: vi.fn(),
+  useStore: vi.fn((selector) => selector(createMockState())),
 }));
 
 const mockMovie: Movie = {
@@ -30,7 +46,7 @@ const mockMovie: Movie = {
   poster_path: "/test-poster.jpg",
   backdrop_path: "/test-backdrop.jpg",
   vote_average: 7.5,
-  release_date: "2022-01-01", // Changed to 2022 to match the actual output
+  release_date: "2021-01-01",
   runtime: 120,
   adult: false,
   popularity: 100,
@@ -42,28 +58,16 @@ describe("MovieCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockNavigate.mockClear();
-
-    (useStore as vi.Mock).mockImplementation((selector) =>
-      selector({
-        watchlist: [],
-        addToWatchlist: vi.fn(),
-        removeFromWatchlist: vi.fn(),
-      }),
-    );
   });
 
   describe("rendering", () => {
     test("displays movie information correctly", () => {
       renderWithProviders(<MovieCard movie={mockMovie} />);
 
-      // Check basic movie information is displayed
       expect(screen.getByText("Test Movie")).toBeInTheDocument();
-
-      // Get the year from our mock data
       const year = new Date(mockMovie.release_date).getFullYear().toString();
       expect(screen.getByText(year)).toBeInTheDocument();
 
-      // Check poster image
       const poster = screen.getByAltText("Test Movie");
       expect(poster).toHaveAttribute(
         "src",
@@ -72,6 +76,10 @@ describe("MovieCard", () => {
     });
 
     test("shows watchlist button based on movie status", () => {
+      vi.mocked(useStore).mockImplementation((selector) =>
+        selector(createMockState()),
+      );
+
       renderWithProviders(<MovieCard movie={mockMovie} />);
       expect(screen.getByTitle("Add to watchlist")).toBeInTheDocument();
     });
@@ -84,20 +92,15 @@ describe("MovieCard", () => {
       const infoButton = screen.getByTitle("View details");
       fireEvent.click(infoButton);
 
-      // Prevent event default should have been called
       expect(mockNavigate).toHaveBeenCalledWith(`/movie/${mockMovie.id}`);
     });
 
     test("clicking watchlist button adds movie to watchlist", () => {
       const mockAddToWatchlist = vi.fn();
+      const mockState = createMockState();
+      mockState.addToWatchlist = mockAddToWatchlist;
 
-      (useStore as vi.Mock).mockImplementation((selector) =>
-        selector({
-          watchlist: [],
-          addToWatchlist: mockAddToWatchlist,
-          removeFromWatchlist: vi.fn(),
-        }),
-      );
+      vi.mocked(useStore).mockImplementation((selector) => selector(mockState));
 
       renderWithProviders(<MovieCard movie={mockMovie} />);
 
@@ -110,14 +113,10 @@ describe("MovieCard", () => {
     test("clicking remove button removes movie from watchlist", () => {
       const mockRemoveFromWatchlist = vi.fn();
       const mockOnWatchlistRemove = vi.fn();
+      const mockState = createMockState([mockMovie]);
+      mockState.removeFromWatchlist = mockRemoveFromWatchlist;
 
-      (useStore as vi.Mock).mockImplementation((selector) =>
-        selector({
-          watchlist: [mockMovie],
-          addToWatchlist: vi.fn(),
-          removeFromWatchlist: mockRemoveFromWatchlist,
-        }),
-      );
+      vi.mocked(useStore).mockImplementation((selector) => selector(mockState));
 
       renderWithProviders(
         <MovieCard
@@ -135,15 +134,47 @@ describe("MovieCard", () => {
   });
 
   describe("hover behavior", () => {
-    test("shows action buttons on hover", () => {
-      renderWithProviders(<MovieCard movie={mockMovie} />);
+    test("shows 'Add to watchlist' button when movie is not in watchlist", () => {
+      vi.mocked(useStore).mockImplementation((selector) =>
+        selector(createMockState()),
+      );
 
-      // Instead of looking for article role, use the card's class
+      renderWithProviders(<MovieCard movie={mockMovie} />);
       const card = screen.getByTestId("movie-card");
       fireEvent.mouseEnter(card);
 
       expect(screen.getByTitle("View details")).toBeInTheDocument();
       expect(screen.getByTitle("Add to watchlist")).toBeInTheDocument();
+    });
+
+    test("shows 'Remove from watchlist' button when movie is in watchlist", () => {
+      vi.mocked(useStore).mockImplementation((selector) =>
+        selector(createMockState([mockMovie])),
+      );
+
+      renderWithProviders(<MovieCard movie={mockMovie} />);
+      const card = screen.getByTestId("movie-card");
+      fireEvent.mouseEnter(card);
+
+      expect(screen.getByTitle("View details")).toBeInTheDocument();
+      expect(screen.getByTitle("Remove from watchlist")).toBeInTheDocument();
+    });
+
+    test("buttons are visible after hover", () => {
+      vi.mocked(useStore).mockImplementation((selector) =>
+        selector(createMockState()),
+      );
+
+      renderWithProviders(<MovieCard movie={mockMovie} />);
+
+      const card = screen.getByTestId("movie-card");
+      fireEvent.mouseEnter(card);
+
+      const buttons = screen.getAllByRole("button");
+      expect(buttons).toHaveLength(2);
+
+      expect(screen.getByTitle("View details")).toBeVisible();
+      expect(screen.getByTitle("Add to watchlist")).toBeVisible();
     });
   });
 });
