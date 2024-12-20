@@ -13,15 +13,15 @@ interface MovieCardProps {
 
 export function MovieCard({ movie, onWatchlistRemove }: MovieCardProps) {
   const navigate = useNavigate();
-  // Split selectors to avoid object creation
   const watchlist = useStore((state) => state.watchlist);
   const addToWatchlist = useStore((state) => state.addToWatchlist);
   const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
 
-  // Memoize the isInWatchlist check
   const isInWatchlist = watchlist.some((m) => m.id === movie.id);
 
-  const handleWatchlistClick = () => {
+  const handleWatchlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (isInWatchlist) {
       removeFromWatchlist(movie.id);
       onWatchlistRemove?.();
@@ -30,12 +30,22 @@ export function MovieCard({ movie, onWatchlistRemove }: MovieCardProps) {
     }
   };
 
-  const handleInfoClick = () => {
+  const handleInfoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/movie/${movie.id}`);
+  };
+
+  const handleCardClick = () => {
     navigate(`/movie/${movie.id}`);
   };
 
   return (
-    <Card className="relative group overflow-hidden">
+    <Card
+      className="relative group overflow-hidden cursor-pointer"
+      onClick={handleCardClick}
+      data-testid="movie-card"
+    >
       <CardContent className="p-0">
         <div className="relative">
           <img
@@ -49,7 +59,7 @@ export function MovieCard({ movie, onWatchlistRemove }: MovieCardProps) {
                 variant="secondary"
                 size="icon"
                 onClick={handleWatchlistClick}
-                className="rounded- p-0"
+                className="rounded-full p-0"
                 title={
                   isInWatchlist ? "Remove from watchlist" : "Add to watchlist"
                 }
@@ -64,7 +74,7 @@ export function MovieCard({ movie, onWatchlistRemove }: MovieCardProps) {
                 variant="secondary"
                 size="icon"
                 onClick={handleInfoClick}
-                className="rounded- p-0"
+                className="rounded-full p-0"
                 title="View details"
               >
                 <Info className="h-5 w-5" />

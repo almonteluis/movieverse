@@ -70,10 +70,14 @@ export interface Crew {
 }
 
 export interface Video {
+  id: string;
   key: string;
   name: string;
-  type: string;
   site: string;
+  size: number;
+  type: string;
+  official: boolean;
+  published_at: string;
 }
 
 export interface SimilarMovie extends Movie {

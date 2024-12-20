@@ -1,22 +1,37 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { useStore } from '@/store';
+import { useSearch } from '@/hooks/useSearch';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function SearchDialog() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const setSearchQuery = useStore((state) => state.setSearchQuery);
+  const [searchParams] = useSearchParams();
+  const { query, setQuery } = useSearch();
+  const debouncedQuery = useDebounce(query, 300);
 
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      setSearchQuery(query.trim());
-      navigate(`/movies?search=${encodeURIComponent(query.trim())}`);
-      setOpen(false);
+  // Update URL when debounced query changes
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      navigate(`/movies?search=${encodeURIComponent(debouncedQuery.trim())}`, { replace: true });
     }
-  };
+  }, [debouncedQuery, navigate]);
+
+  // Initialize query from URL search param
+  useEffect(() => {
+    const searchQuery = searchParams.get('search');
+    if (searchQuery) {
+      setQuery(searchQuery);
+    }
+  }, [searchParams, setQuery]);
+
+  // Close dialog when navigating away
+  useEffect(() => {
+    return () => setOpen(false);
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -37,7 +52,8 @@ export function SearchDialog() {
             placeholder="Search movies..."
             className="h-10"
             autoFocus
-            onChange={(e) => handleSearch(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             aria-label="Search movies"
           />
         </div>
