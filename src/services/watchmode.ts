@@ -118,7 +118,7 @@ export const watchmodeApi = {
       const response = await axiosInstance.get(`/title/${titleId}/sources/`);
 
       // Extract rate limit info even from successful responses
-      const rateLimitInfo = getRateLimitInfo(response.headers);
+      // const rateLimitInfo = getRateLimitInfo(response.headers);
 
       // Filter to include only subscription and free services
       return response.data.filter(
