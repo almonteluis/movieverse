@@ -23,8 +23,12 @@ interface MovieResponse {
 
 export default function TrendingPage() {
   const [timeWindow, setTimeWindow] = useState("week");
+  const [sortBy, setSortBy] = useState("popularity.desc");
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useMovies.useInfiniteMovies("trending", timeWindow) as {
+    useMovies.useInfiniteDiscover({
+      sort_by: sortBy,
+      "vote_average.gte": 0,
+    }) as {
       data?: InfiniteData<MovieResponse>;
       isLoading: boolean;
       fetchNextPage: () => void;
@@ -74,14 +78,17 @@ export default function TrendingPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <Select defaultValue="popularity">
+              <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[150px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popularity">Popularity</SelectItem>
-                  <SelectItem value="vote_average">Rating</SelectItem>
-                  <SelectItem value="release_date">Release Date</SelectItem>
+                  <SelectItem value="popularity.desc">Most Popular</SelectItem>
+                  <SelectItem value="popularity.asc">Least Popular</SelectItem>
+                  <SelectItem value="vote_average.desc">Highest Rated</SelectItem>
+                  <SelectItem value="vote_average.asc">Lowest Rated</SelectItem>
+                  <SelectItem value="release_date.desc">Newest</SelectItem>
+                  <SelectItem value="release_date.asc">Oldest</SelectItem>
                 </SelectContent>
               </Select>
 
