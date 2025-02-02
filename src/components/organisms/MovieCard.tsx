@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Movie } from "@/types/api.types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/atoms/card";
+import { Button } from "@/components/atoms/button";
 import { BookmarkPlus, BookmarkCheck, Info } from "lucide-react";
 import { useStore } from "@/store";
 
@@ -47,7 +47,7 @@ export function MovieCard({ movie, onWatchlistRemove }: MovieCardProps) {
       data-testid="movie-card"
     >
       <CardContent className="p-0">
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
