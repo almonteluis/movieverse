@@ -1,17 +1,17 @@
 import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { MovieCardSkeleton } from "@/components/ui/skeletons";
+} from "@/components/atoms/select";
+import { MovieCardSkeleton } from "@/components/atoms/skeletons";
 import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
-import { MovieCard } from "@/components/common/MovieCard";
+import { MovieCard } from "@/components/organisms/MovieCard";
 import { InfiniteData } from "@tanstack/react-query";
 import { Movie } from "@/types/api.types";
 
@@ -85,7 +85,9 @@ export default function TrendingPage() {
                 <SelectContent>
                   <SelectItem value="popularity.desc">Most Popular</SelectItem>
                   <SelectItem value="popularity.asc">Least Popular</SelectItem>
-                  <SelectItem value="vote_average.desc">Highest Rated</SelectItem>
+                  <SelectItem value="vote_average.desc">
+                    Highest Rated
+                  </SelectItem>
                   <SelectItem value="vote_average.asc">Lowest Rated</SelectItem>
                   <SelectItem value="release_date.desc">Newest</SelectItem>
                   <SelectItem value="release_date.asc">Oldest</SelectItem>

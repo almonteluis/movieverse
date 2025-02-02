@@ -1,13 +1,6 @@
 import { useParams } from "react-router-dom";
-import { Button } from "../../../components/ui/button";
-import {
-  Star,
-  Clock,
-  Calendar,
-  Users,
-  MessageCircle,
-} from "lucide-react";
-import { VideoGallery } from "../../../components/features/VideoGallery";
+import { Star, Clock, Calendar } from "lucide-react";
+import { VideoGallery } from "../../../components/organisms/VideoGallery";
 import { tmdbService } from "../../../services/tmdbService";
 import {
   useMovieData,
@@ -211,36 +204,6 @@ export function MovieDetail() {
 
           {/* Cast */}
           <CastSection cast={cast} />
-
-          {/* Reviews */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold">Reviews</h2>
-              <Button variant="ghost">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Write a Review
-              </Button>
-            </div>
-
-            {/* Review Cards */}
-            <div className="space-y-4">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="p-4 rounded-lg border space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span className="font-medium">User Name</span>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1">4.5</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Review content...
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Sidebar */}

@@ -1,6 +1,6 @@
-import { Play } from "lucide-react";
 import { useState } from "react";
-import { VideoPlayer } from "./VideoPlayer";
+import { VideoPlayer } from "../molecules/VideoPlayer";
+import VideoThumbnail from "../atoms/VideoThumbnail";
 
 interface Video {
   id: string;
@@ -28,7 +28,6 @@ export function VideoGallery({ videos, movieTitle }: VideoGalleryProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Videos</h2>
-      
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {videos.map((video) => (
           <div
@@ -37,17 +36,8 @@ export function VideoGallery({ videos, movieTitle }: VideoGalleryProps) {
             onClick={() => setSelectedVideo(video)}
           >
             {/* YouTube Thumbnail */}
-            <div className="relative aspect-video rounded-lg overflow-hidden">
-              <img
-                src={`https://img.youtube.com/vi/${video.key}/maxresdefault.jpg`}
-                alt={video.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-opacity duration-300 flex items-center justify-center">
-                <Play className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 h-12 w-12" />
-              </div>
-            </div>
-            
+            <VideoThumbnail src={video.key} alt={video.name} />
+
             {/* Video Info */}
             <div className="mt-2">
               <h3 className="font-medium line-clamp-1" title={video.name}>

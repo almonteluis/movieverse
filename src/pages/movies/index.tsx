@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/button";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+} from "@/components/atoms/select";
 import { Filter } from "lucide-react";
-import { MovieCard } from "@/components/common/MovieCard";
-import { MovieCardSkeleton } from "@/components/ui/skeletons";
+import { MovieCard } from "@/components/organisms/MovieCard";
+import { MovieCardSkeleton } from "@/components/atoms/skeletons";
 import { useMovies } from "@/hooks/useMovies";
 import { useGenres } from "@/hooks/useGenres";
 import { InfiniteData } from "@tanstack/react-query";

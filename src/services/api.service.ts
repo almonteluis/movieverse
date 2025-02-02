@@ -12,10 +12,6 @@ export const apiClient = axios.create({
 
 // Add request interceptor for error handling and logging
 apiClient.interceptors.request.use((config) => {
-  // Add request logging in development
-  if (import.meta.env.DEV) {
-    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
-  }
   return config;
 });
 

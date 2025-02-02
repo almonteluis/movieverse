@@ -1,19 +1,24 @@
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { SearchDialog } from '@/components/common/SearchDialog';
-import { Bookmark, Film, Home, TrendingUp } from 'lucide-react';
-import { useStore } from '@/store';
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/atoms/button";
+import { SearchDialog } from "@/components/organisms/SearchDialog";
+import { Bookmark, Film, Home, TrendingUp } from "lucide-react";
+import { useStore } from "@/store";
 
 const Navbar = () => {
   const location = useLocation();
   const watchlist = useStore((state) => state.watchlist);
 
   const links = [
-    { to: '/', label: 'Home', icon: Home },
-    { to: '/movies', label: 'Movies', icon: Film },
-    { to: '/trending', label: 'Trending', icon: TrendingUp },
-    { to: '/watchlist', label: 'Watchlist', icon: Bookmark, count: watchlist.length },
+    { to: "/", label: "Home", icon: Home },
+    { to: "/movies", label: "Movies", icon: Film },
+    { to: "/trending", label: "Trending", icon: TrendingUp },
+    {
+      to: "/watchlist",
+      label: "Watchlist",
+      icon: Bookmark,
+      count: watchlist.length,
+    },
   ];
 
   return (
@@ -29,9 +34,9 @@ const Navbar = () => {
               return (
                 <Link key={to} to={to}>
                   <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className={cn('flex items-center gap-2', {
-                      'bg-muted': isActive,
+                    variant={isActive ? "secondary" : "ghost"}
+                    className={cn("flex items-center gap-2", {
+                      "bg-muted": isActive,
                     })}
                   >
                     <Icon className="h-4 w-4" />

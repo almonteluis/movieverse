@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { useSearch } from '@/hooks/useSearch';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/atoms/dialog";
+import { Input } from "@/components/atoms/input";
+import { Search } from "lucide-react";
+import { useSearch } from "@/hooks/useSearch";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export function SearchDialog() {
   const [open, setOpen] = useState(false);
@@ -16,13 +22,15 @@ export function SearchDialog() {
   // Update URL when debounced query changes
   useEffect(() => {
     if (debouncedQuery.trim()) {
-      navigate(`/movies?search=${encodeURIComponent(debouncedQuery.trim())}`, { replace: true });
+      navigate(`/movies?search=${encodeURIComponent(debouncedQuery.trim())}`, {
+        replace: true,
+      });
     }
   }, [debouncedQuery, navigate]);
 
   // Initialize query from URL search param
   useEffect(() => {
-    const searchQuery = searchParams.get('search');
+    const searchQuery = searchParams.get("search");
     if (searchQuery) {
       setQuery(searchQuery);
     }

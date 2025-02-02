@@ -3,7 +3,7 @@
 import { describe, expect, beforeEach, test, vi } from "vitest";
 import { screen, fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "./test-utils";
-import { MovieCard } from "@/components/common/MovieCard";
+import { MovieCard } from "@/components/organisms/MovieCard";
 import { useStore } from "@/store";
 // import { useNavigate } from "react-router-dom";
 import { Movie } from "@/types/api.types";

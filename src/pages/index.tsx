@@ -1,21 +1,15 @@
-import { Card } from "../components/ui/card";
-import { Button } from "../components/ui/button";
+import { Card } from "../components/atoms/card";
+import { Button } from "../components/atoms/button";
 import { useMovies } from "../hooks/useMovies";
-import { ErrorMessage } from "../components/ui/error-message";
+import { ErrorMessage } from "../components/atoms/error-message";
 import { tmdbApi } from "../services/tmdb";
-import {
-  PlayCircle,
-  Star,
-  TrendingUp,
-  Calendar,
-  Plus,
-} from "lucide-react";
+import { PlayCircle, Star, TrendingUp, Calendar, Plus } from "lucide-react";
 import {
   HeroSkeleton,
   MovieCardSkeleton,
   ComingSoonCardSkeleton,
-} from "../components/ui/skeletons";
-import { SearchDialog } from "../components/common/SearchDialog";
+} from "../components/atoms/skeletons";
+import { SearchDialog } from "../components/organisms/SearchDialog";
 
 export default function HomePage() {
   const {
@@ -200,7 +194,8 @@ export default function HomePage() {
                         {movie.title}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        {movie.release_date && new Date(movie.release_date).getFullYear()}
+                        {movie.release_date &&
+                          new Date(movie.release_date).getFullYear()}
                       </p>
                     </div>
                   </Card>

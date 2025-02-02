@@ -1,4 +1,4 @@
-import { Dialog } from "../ui/dialog";
+import { Dialog } from "../atoms/dialog";
 
 interface VideoPlayerProps {
   isOpen: boolean;

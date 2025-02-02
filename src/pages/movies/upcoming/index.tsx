@@ -1,17 +1,17 @@
 import { useState } from "react";
 // import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/atoms/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { MovieCardSkeleton } from "@/components/ui/skeletons";
+} from "@/components/atoms/select";
+import { MovieCardSkeleton } from "@/components/atoms/skeletons";
 import { useMovies } from "@/hooks/useMovies";
 import { Filter } from "lucide-react";
-import { MovieCard } from "@/components/common/MovieCard";
+import { MovieCard } from "@/components/organisms/MovieCard";
 import { Movie } from "@/types/api.types";
 
 // interface FilterState {

@@ -4,26 +4,24 @@ import { Movie, PaginatedResponse } from "../types/api.types";
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 
-console.log('TMDB API Key:', TMDB_API_KEY); // Debug log
-
 if (!TMDB_API_KEY) {
-  throw new Error('TMDB API key is not defined in environment variables');
+  throw new Error("TMDB API key is not defined in environment variables");
 }
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Add response interceptor for debugging
 axiosInstance.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     if (axios.isAxiosError(error)) {
-      console.error('TMDB API Error:', {
+      console.error("TMDB API Error:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
@@ -32,38 +30,33 @@ axiosInstance.interceptors.response.use(
           method: error.config?.method,
           params: error.config?.params,
           headers: error.config?.headers,
-        }
+        },
       });
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // Add request interceptor for debugging
 axiosInstance.interceptors.request.use(
-  config => {
+  (config) => {
     // Always add api_key to params
     config.params = {
       ...config.params,
       api_key: TMDB_API_KEY,
     };
-    console.log('Making request:', {
-      url: config.url,
-      method: config.method,
-      params: config.params,
-    });
     return config;
   },
-  error => {
+  (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export const tmdbApi = {
   // Helper for image URLs
   getImageUrl: (path: string | null, size = "original") =>
     path ? `https://image.tmdb.org/t/p/${size}${path}` : null,
-  
+
   formatRuntime: (minutes: number | null) => {
     if (!minutes) return "";
     const hours = Math.floor(minutes / 60);
@@ -85,7 +78,7 @@ export const tmdbApi = {
               page,
               include_adult: false,
             },
-          }
+          },
         );
 
         return {
@@ -95,10 +88,10 @@ export const tmdbApi = {
           total_results: data.total_results,
         };
       } catch (error) {
-        console.error('Search movies error:', error);
+        console.error("Search movies error:", error);
         if (axios.isAxiosError(error)) {
           throw new Error(
-            `Failed to search movies: ${error.response?.data?.message || error.message}`
+            `Failed to search movies: ${error.response?.data?.message || error.message}`,
           );
         }
         throw error;
@@ -108,7 +101,7 @@ export const tmdbApi = {
     fetchMovies: async (
       type: "now_playing" | "trending" | "top_rated" | "upcoming",
       page: number = 1,
-      timeWindow: string = "week"
+      timeWindow: string = "week",
     ): Promise<{
       results: Movie[];
       nextPage: number | undefined;
@@ -134,10 +127,9 @@ export const tmdbApi = {
             throw new Error("Invalid movie type");
         }
 
-        console.log('Fetching movies:', { endpoint, params });
         const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
           endpoint,
-          { params }
+          { params },
         );
 
         return {
@@ -146,10 +138,10 @@ export const tmdbApi = {
           hasMore: page < data.total_pages,
         };
       } catch (error) {
-        console.error('Fetch movies error:', error);
+        console.error("Fetch movies error:", error);
         if (axios.isAxiosError(error)) {
           throw new Error(
-            `Failed to fetch ${type} movies: ${error.response?.data?.message || error.message}`
+            `Failed to fetch ${type} movies: ${error.response?.data?.message || error.message}`,
           );
         }
         throw error;
@@ -163,7 +155,7 @@ export const tmdbApi = {
       year?: number;
       with_genres?: string;
       "vote_average.gte"?: number;
-      "primary_release_year"?: number;
+      primary_release_year?: number;
     }) => {
       try {
         const { data } = await axiosInstance.get<PaginatedResponse<Movie[]>>(
@@ -174,7 +166,7 @@ export const tmdbApi = {
               include_adult: false,
               ...params,
             },
-          }
+          },
         );
 
         return {
@@ -184,10 +176,10 @@ export const tmdbApi = {
           total_results: data.total_results,
         };
       } catch (error) {
-        console.error('Discover movies error:', error);
+        console.error("Discover movies error:", error);
         if (axios.isAxiosError(error)) {
           throw new Error(
-            `Failed to discover movies: ${error.response?.data?.message || error.message}`
+            `Failed to discover movies: ${error.response?.data?.message || error.message}`,
           );
         }
         throw error;
@@ -203,7 +195,7 @@ export const tmdbApi = {
               language: "en-US",
               page,
             },
-          }
+          },
         );
 
         return {
@@ -212,10 +204,10 @@ export const tmdbApi = {
           hasMore: page < data.total_pages,
         };
       } catch (error) {
-        console.error('Trending movies error:', error);
+        console.error("Trending movies error:", error);
         if (axios.isAxiosError(error)) {
           throw new Error(
-            `Failed to fetch trending movies: ${error.response?.data?.message || error.message}`
+            `Failed to fetch trending movies: ${error.response?.data?.message || error.message}`,
           );
         }
         throw error;

@@ -5,7 +5,6 @@ A modern movie discovery platform built with React, featuring real-time trailers
 ## Features ✨
 
 - 🎥 Real-time trailer previews on hover
-- 🎦 IMAX-style video player
 - 📱 Fully responsive design
 - 🎯 Advanced movie discovery
 - ⚡ Fast and interactive UI
